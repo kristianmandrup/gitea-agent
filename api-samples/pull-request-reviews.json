@@ -1,0 +1,78 @@
+[
+  {
+    "body": "string",
+    "comments_count": 0,
+    "commit_id": "string",
+    "dismissed": true,
+    "html_url": "string",
+    "id": 0,
+    "official": true,
+    "pull_request_url": "string",
+    "stale": true,
+    "state": "string",
+    "submitted_at": "2019-08-24T14:15:22Z",
+    "team": {
+      "can_create_org_repo": true,
+      "description": "string",
+      "id": 0,
+      "includes_all_repositories": true,
+      "name": "string",
+      "organization": {
+        "avatar_url": "string",
+        "description": "string",
+        "full_name": "string",
+        "id": 0,
+        "location": "string",
+        "name": "string",
+        "repo_admin_change_team_access": true,
+        "username": "string",
+        "visibility": "string",
+        "website": "string"
+      },
+      "permission": "none",
+      "units": [
+        "repo.code",
+        "repo.issues",
+        "repo.ext_issues",
+        "repo.wiki",
+        "repo.pulls",
+        "repo.releases",
+        "repo.projects",
+        "repo.ext_wiki"
+      ],
+      "units_map": {
+        "repo.code": "read",
+        "repo.ext_issues": "none",
+        "repo.ext_wiki": "none",
+        "repo.issues": "write",
+        "repo.projects": "none",
+        "repo.pulls": "owner",
+        "repo.releases": "none",
+        "repo.wiki": "admin"
+      }
+    },
+    "updated_at": "2019-08-24T14:15:22Z",
+    "user": {
+      "active": true,
+      "avatar_url": "string",
+      "created": "2019-08-24T14:15:22Z",
+      "description": "string",
+      "email": "user@example.com",
+      "followers_count": 0,
+      "following_count": 0,
+      "full_name": "string",
+      "id": 0,
+      "is_admin": true,
+      "language": "string",
+      "last_login": "2019-08-24T14:15:22Z",
+      "location": "string",
+      "login": "string",
+      "login_name": "empty",
+      "prohibit_login": true,
+      "restricted": true,
+      "starred_repos_count": 0,
+      "visibility": "string",
+      "website": "string"
+    }
+  }
+]
