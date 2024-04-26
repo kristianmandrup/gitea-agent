@@ -1,9 +1,9 @@
-import { GiteaRepository } from "./repository";
+import { GiteaRepositoryController } from "./repository";
 
 export class RepoAccesser {
-  repository: GiteaRepository;
+  repository: GiteaRepositoryController;
 
-  constructor(repository: GiteaRepository) {
+  constructor(repository: GiteaRepositoryController) {
     this.repository = repository;
   }
 

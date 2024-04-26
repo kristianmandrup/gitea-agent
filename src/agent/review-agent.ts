@@ -1,6 +1,6 @@
-import { FileChange, FileChangeHandler } from "./file-change";
-import { GiteaRepository } from "./repository";
-import { RepoAccesser } from "./repo-accesser";
+import { FileChange, FileChangeHandler } from "../api/file-change";
+import { GiteaRepositoryController } from "../api/repository";
+import { RepoAccesser } from "../api/repo-accesser";
 
 interface PullRequest {
   id: number;
@@ -17,7 +17,7 @@ export class ReviewSuggestions extends RepoAccesser {
   pullRequest: PullRequest;
   fileChangeHandler: FileChangeHandler;
 
-  constructor(repository: GiteaRepository, pullRequest: PullRequest) {
+  constructor(repository: GiteaRepositoryController, pullRequest: PullRequest) {
     super(repository);
     this.fileChangeHandler = this.createFileChangeHandler();
     this.pullRequest = pullRequest;

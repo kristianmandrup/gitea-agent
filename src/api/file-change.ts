@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GiteaRepository } from "./repository";
+import { GiteaRepositoryController } from "./repository";
 import { RepoAccesser } from "./repo-accesser";
 
 export interface PullRequest {
@@ -23,7 +23,7 @@ export interface ReviewSuggestion {
 }
 
 export class FileChangeHandler extends RepoAccesser {
-  constructor(repository: GiteaRepository) {
+  constructor(repository: GiteaRepositoryController) {
     super(repository);
   }
 
