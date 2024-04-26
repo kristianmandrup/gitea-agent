@@ -7,6 +7,10 @@ export class RepoAccesser {
     this.repository = repository;
   }
 
+  get api() {
+    return this.repository.api;
+  }
+
   get owner() {
     return this.repository.owner;
   }

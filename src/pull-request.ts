@@ -1,9 +1,49 @@
-import { AxiosResponse } from "axios";
-import { api } from "./api";
+import { RepoAccesser } from "./repo-accesser";
+import {
+  CreatePullReviewOptions,
+  PullRequest,
+  PullReviewRequestOptions,
+} from "gitea-js";
+import { GiteaRepository } from "./repository";
 
-interface PullRequest {
+interface IPullRequest {
   title: string;
   // Add more properties as needed
+}
+
+export class GiteaPullRequest extends RepoAccesser {
+  pr: PullRequest;
+  index: number;
+
+  constructor(repository: GiteaRepository, pr: PullRequest) {
+    super(repository);
+    this.pr = pr;
+    const index = this.pr.id;
+    if (!index) {
+      throw new Error(`PR is missing index`);
+    }
+    this.index = index;
+  }
+
+  async createPullReviewRequests(opts: PullReviewRequestOptions) {
+    const response = await this.api.repos.repoCreatePullReviewRequests(
+      this.owner,
+      this.repoName,
+      this.index,
+      opts
+    );
+    return response.data;
+  }
+
+  async createPullRequestReview(opts: CreatePullReviewOptions) {
+    const response = await this.api.repos.repoCreatePullReview(
+      this.owner,
+      this.repoName,
+      this.index,
+      opts
+    );
+    return response.data;
+  }
 }
 
 // export async function createFeatureBranch(branchName: string): Promise<void> {

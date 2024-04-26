@@ -1,29 +1,5 @@
-import { AxiosResponse } from "axios";
 import { GiteaApi, api } from "./api";
 import { Repository } from "gitea-js";
-
-export type Collaborator = {
-  active: boolean;
-  avatar_url: string;
-  created: string;
-  description: string;
-  email: string;
-  followers_count: number;
-  following_count: number;
-  full_name: string;
-  id: number;
-  is_admin: boolean;
-  language: string;
-  last_login: string;
-  location: string;
-  login: string;
-  login_name: string;
-  prohibit_login: boolean;
-  restricted: boolean;
-  starred_repos_count: number;
-  visibility: string;
-  website: string;
-};
 
 export class GiteaRepository {
   gitea: GiteaApi;
@@ -46,12 +22,72 @@ export class GiteaRepository {
     this.repository = response.data;
   }
 
+  async addTopic(topic: string) {
+    const response = await this.api.repos.repoAddTopic(
+      this.owner,
+      this.name,
+      topic
+    );
+    return response.data;
+  }
+
+  async createPullRequest(opts: {
+    assignees?: string[];
+    // labels?: number[];
+    title?: string;
+    body?: string;
+  }) {
+    const response = await this.api.repos.repoCreatePullRequest(
+      this.owner,
+      this.name,
+      opts
+    );
+    return response.data;
+  }
+
+  async getPullRequest(index: number) {
+    const response = await this.api.repos.repoGetPullRequest(
+      this.owner,
+      this.name,
+      index
+    );
+    return response.data;
+  }
+
+  async listPullRequests() {
+    const response = await this.api.repos.repoListPullRequests(
+      this.owner,
+      this.name
+    );
+    return response.data;
+  }
+
+  async createBranch(branchId: string) {
+    const response = await this.api.repos.repoCreateBranch(
+      this.owner,
+      this.name,
+      {
+        new_branch_name: branchId,
+      }
+    );
+    return response.data;
+  }
+
+  async addTeam(teamId: string) {
+    const response = await this.api.repos.repoAddTeam(
+      this.owner,
+      this.name,
+      teamId
+    );
+    return response.data;
+  }
+
   async getCollaborators() {
     const response = await this.api.repos.repoListCollaborators(
       this.owner,
       this.name
     );
-    return await response.data;
+    return response.data;
   }
 
   async addCollaborator(collaboratorId: string) {
@@ -63,6 +99,15 @@ export class GiteaRepository {
         permission: "write",
       }
     );
-    return await response.data;
+    return response.data;
+  }
+
+  async deleteCollaborator(collaboratorId: string) {
+    const response = await this.api.repos.repoDeleteCollaborator(
+      this.owner,
+      this.name,
+      collaboratorId
+    );
+    return response.data;
   }
 }
