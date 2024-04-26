@@ -1,6 +1,6 @@
-import { FileChange, FileChangeHandler } from "../api/file-change";
-import { GiteaRepositoryController } from "../api/repository";
-import { RepoAccesser } from "../api/repo-accesser";
+import { FileChange, FileChangeHandler } from "../api/repo/file-change";
+import { GiteaRepositoryController } from "../api/repo/repository";
+import { RepoAccesser } from "../api/repo/repo-accesser";
 
 interface PullRequest {
   id: number;

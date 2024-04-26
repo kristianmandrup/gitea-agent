@@ -2,9 +2,33 @@
 
 See [Gitea](https://github.com/go-gitea/gitea)
 
+## Design
+
+The various controllers are all exported from the main `index.ts` file in the `src` folder.
+
+- `admin`
+- `orgs`
+- `repo`
+- `teams`
+- `users`
+- `api`
+
+The `repo` folder contains most of the key concepts to work with repositories, including:
+
+- `branches`
+- `issues`
+- `teams`
+- `collaborators`
+- `pullRequests`
+- `topics`
+
+`pullRequests` include:
+
+- `reviews`
+
 ## Gitea API
 
-This library will use [gitea-js](https://www.npmjs.com/package/gitea-js) to work with the Gitea REST API.
+This library is using [gitea-js](https://www.npmjs.com/package/gitea-js) as a wrapper to work with the Gitea REST API.
 
 ```ts
 import { giteaApi } from "gitea-js";

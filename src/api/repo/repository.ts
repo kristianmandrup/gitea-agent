@@ -1,4 +1,4 @@
-import { GiteaApi, api } from "./api";
+import { GiteaApi, GiteaApiAccesser, api } from "../api";
 import { Repository } from "gitea-js";
 import {
   GiteaCollaboratorController,
@@ -9,12 +9,11 @@ import {
   GiteaPullRequestController,
   IPullRequestController,
 } from "./pull-request";
-import { GiteaTeamController, ITeamController } from "./team";
-import { GiteaTopicController, ITopicController } from "./topic";
-import { GiteaIssueController, IIssueController } from "./issue";
+import { GiteaRepoTeamController, ITeamController } from "./team";
+import { GiteaRepoTopicController, ITopicController } from "./topic";
+import { GiteaRepoIssueController, IIssueController } from "./issue";
 
-export class GiteaRepositoryController {
-  gitea: GiteaApi;
+export class GiteaRepositoryController extends GiteaApiAccesser {
   owner: string;
   name: string;
   repository?: Repository;
@@ -26,6 +25,7 @@ export class GiteaRepositoryController {
   issues: IIssueController;
 
   constructor(owner: string, name: string) {
+    super();
     this.owner = owner;
     this.name = name;
     this.gitea = api;
@@ -38,15 +38,15 @@ export class GiteaRepositoryController {
   }
 
   createIssueController() {
-    return new GiteaIssueController(this);
+    return new GiteaRepoIssueController(this);
   }
 
   createTopicController() {
-    return new GiteaTopicController(this);
+    return new GiteaRepoTopicController(this);
   }
 
   createTeamController() {
-    return new GiteaTeamController(this);
+    return new GiteaRepoTeamController(this);
   }
 
   createPullRequestController() {
@@ -59,10 +59,6 @@ export class GiteaRepositoryController {
 
   protected createCollaboratorController() {
     return new GiteaCollaboratorController(this);
-  }
-
-  get api() {
-    return this.gitea.api;
   }
 
   async getRepo() {

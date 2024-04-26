@@ -17,3 +17,15 @@ export class GiteaApi {
 }
 
 export const api = new GiteaApi();
+
+export class GiteaApiAccesser {
+  gitea: GiteaApi;
+
+  constructor() {
+    this.gitea = api;
+  }
+
+  protected get api() {
+    return this.gitea.api;
+  }
+}

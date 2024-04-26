@@ -10,7 +10,7 @@ export interface IIssueController {
   ): Promise<Issue>;
 }
 
-export class GiteaIssueController extends RepoAccesser {
+export class GiteaRepoIssueController extends RepoAccesser {
   issue?: Issue;
 
   constructor(repository: GiteaRepositoryController) {
