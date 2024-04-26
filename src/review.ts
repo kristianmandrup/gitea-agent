@@ -1,4 +1,9 @@
+import { FileChange, FileChangeHandler } from "./file-change";
+import { GiteaRepository } from "./repository";
+import { RepoAccesser } from "./repo-accesser";
+
 interface PullRequest {
+  id: number;
   title: string;
   filesChanged: string[];
 }
@@ -8,55 +13,69 @@ interface ReviewSuggestion {
   comment: string;
 }
 
-export async function generateReviewSuggestions(
-  pullRequest: PullRequest
-): Promise<ReviewSuggestion[]> {
-  // Mock AI service to generate review suggestions
-  const reviewSuggestions: ReviewSuggestion[] = [];
+export class ReviewSuggestions extends RepoAccesser {
+  pullRequest: PullRequest;
+  fileChangeHandler: FileChangeHandler;
 
-  // Iterate through files changed in the pull request
-  for (const file of pullRequest.filesChanged) {
-    // Generate a review suggestion for each file
-    const suggestion: ReviewSuggestion = {
-      file,
-      comment: `Consider adding more comments to ${file}.`,
-    };
-    reviewSuggestions.push(suggestion);
+  constructor(repository: GiteaRepository, pullRequest: PullRequest) {
+    super(repository);
+    this.fileChangeHandler = this.createFileChangeHandler();
+    this.pullRequest = pullRequest;
   }
 
-  return reviewSuggestions;
-}
-
-export async function applyReviewSuggestions(
-  reviewSuggestions: ReviewSuggestion[]
-): Promise<void> {
-  // Mock function to apply review suggestions
-  console.log("Applying review suggestions:");
-  for (const suggestion of reviewSuggestions) {
-    console.log(`- ${suggestion.comment}`);
+  createFileChangeHandler() {
+    return new FileChangeHandler(this.repository);
   }
-}
 
-export async function reviewPullRequests(
-  pullRequests: PullRequest[]
-): Promise<void> {
-  for (const pullRequest of pullRequests) {
-    console.log(`Reviewing pull request: ${pullRequest.title}`);
-    const reviewSuggestions = await generateReviewSuggestions(pullRequest);
-    await applyReviewSuggestions(reviewSuggestions);
+  async getReviewCommentsForFileChange(fileChange: FileChange) {
+    return "it changed";
   }
+
+  // call external agent
+  async getReviewSuggestionsForPr() {
+    const fileChanges: FileChange[] =
+      await this.fileChangeHandler.getFileChanges(this.pullRequest.id);
+    const suggestions: ReviewSuggestion[] = [];
+    for (const fileChange of fileChanges) {
+      const comment = await this.getReviewCommentsForFileChange(fileChange);
+      const reviewSuggestion = {
+        file: fileChange.filename,
+        comment,
+      };
+      suggestions.push(reviewSuggestion);
+    }
+    return suggestions;
+  }
+
+  async applyReviewSuggestions(
+    reviewSuggestions: ReviewSuggestion[]
+  ): Promise<void> {
+    // Mock function to apply review suggestions
+    console.log("Applying review suggestions:");
+    for (const suggestion of reviewSuggestions) {
+      console.log(`- ${suggestion.comment}`);
+    }
+  }
+
+  //   async reviewPullRequests(pullRequests: PullRequest[]): Promise<void> {
+  //     for (const pullRequest of pullRequests) {
+  //       console.log(`Reviewing pull request: ${pullRequest.title}`);
+  //       const reviewSuggestions = await this.generateReviewSuggestionsForPr();
+  //       await this.applyReviewSuggestions(reviewSuggestions);
+  //     }
+  //   }
 }
 
 // Usage example:
-const pullRequests: PullRequest[] = [
-  {
-    title: "Feature: Add login functionality",
-    filesChanged: ["src/login.ts", "src/authenticate.ts"],
-  },
-  {
-    title: "Bug fix: Fix authentication issue",
-    filesChanged: ["src/authenticate.ts", "src/utils.ts"],
-  },
-];
+// const pullRequests: PullRequest[] = [
+//   {
+//     title: "Feature: Add login functionality",
+//     filesChanged: ["src/login.ts", "src/authenticate.ts"],
+//   },
+//   {
+//     title: "Bug fix: Fix authentication issue",
+//     filesChanged: ["src/authenticate.ts", "src/utils.ts"],
+//   },
+// ];
 
-reviewPullRequests(pullRequests);
+// reviewPullRequests(pullRequests);
