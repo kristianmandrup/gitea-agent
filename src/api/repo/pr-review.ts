@@ -29,6 +29,15 @@ export class GiteaPullRequestReviewController extends RepoAccessor {
     this.pr = pr;
   }
 
+  // repoGetPullReview: (owner: string, repo: string, index: number, id: number
+  // repoCreatePullReview: (owner: string, repo: string, index: number, body: CreatePullReviewOptions
+  // repoDeletePullReview: (owner: string, repo: string, index: number, id: number
+  // Submit a pending review to an pull request
+  // repoSubmitPullReview: (owner: string, repo: string, index: number, id: number, body: SubmitPullReviewOptions
+
+  // repoGetPullReviewComments: (owner: string, repo: string, index: number, id: number
+  // repoDismissPullReview: (owner: string, repo: string, index: number, id: number, body: DismissPullReviewOptions
+
   async createPullReviewRequests(opts: PullReviewRequestOptions) {
     if (!this.index) {
       throw new Error(`PR is missing or has no index`);
@@ -41,6 +50,9 @@ export class GiteaPullRequestReviewController extends RepoAccessor {
     );
     return response.data;
   }
+
+  // repoDeletePullReviewRequests: (owner: string, repo: string, index: number, body: PullReviewRequestOptions
+  // repoListPullReviews: (owner: string, repo: string, index: number
 
   async createPullRequestReview(opts: CreatePullReviewOptions) {
     if (!this.index) {

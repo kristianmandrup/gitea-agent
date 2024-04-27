@@ -41,6 +41,10 @@ export class GiteaBranchController extends RepoAccessor {
     return response.data;
   }
 
+  // repoEditBranchProtection: (owner: string, repo: string, name: string, body: EditBranchProtectionOption
+  // repoDeleteBranchProtection: (owner: string, repo: string, name: string
+  // repoListBranchProtection: (owner: string, repo: string
+
   async deleteBranch(branchName: string) {
     const response = await this.api.repos.repoDeleteBranch(
       this.owner,

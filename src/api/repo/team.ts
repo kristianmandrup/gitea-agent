@@ -13,4 +13,8 @@ export class GiteaRepoTeamController extends RepoAccessor {
     );
     return response.data;
   }
+
+  // repoDeleteTeam: (owner: string, repo: string, team: string
+  // repoListTeams: (owner: string, repo: string
+  // repoCheckTeam: (owner: string, repo: string, team: string
 }

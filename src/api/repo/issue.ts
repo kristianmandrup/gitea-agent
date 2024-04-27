@@ -24,6 +24,7 @@ export class GiteaRepoIssueController extends RepoAccessor {
   setIssue(issue: Issue) {
     this.issue = issue;
   }
+
   async createIssue(title: string, body: string, opts: CreateIssueOption) {
     const response = await this.api.repos.issueCreateIssue(
       this.owner,
@@ -45,4 +46,41 @@ export class GiteaRepoIssueController extends RepoAccessor {
     );
     return response.data;
   }
+
+  // issueCreateMilestone: (owner: string, repo: string, body: CreateMilestoneOption
+  // issueGetMilestonesList: (owner: string, repo: string, query?
+  // issueGetMilestone: (owner: string, repo: string, id: string
+  // issueDeleteMilestone: (owner: string, repo: string, id: string
+  // issueEditMilestone: (owner: string, repo: string, id: string, body: EditMilestoneOption
+
+  // issueSearchIssues: (query?)
+
+  // repoGetIssueTemplates: (owner: string, repo: string
+
+  // issueGetIssue: (owner: string, repo: string, index: number
+
+  // issueListIssueAttachments: (owner: string, repo: string, index: number
+  // issueGetIssueAttachment: (owner: string, repo: string, index: number, attachmentId: number
+
+  // issueCreateIssueAttachment: (owner: string, repo: string, index: number, data: {
+  //   /** attachment to upload */
+  //   attachment: File;
+
+  // issueGetComments: (owner: string, repo: string, index: number
+
+  // issueListBlocks: (owner: string, repo: string, index: string
+  // issueCreateIssueBlocking: (owner: string, repo: string, index: string, body: IssueMeta
+  // issueRemoveIssueBlocking: (owner: string, repo: string, index: string, body: IssueMeta
+
+  // issueCheckSubscription: (owner: string, repo: string, index: number
+  // issueAddSubscription: (owner: string, repo: string, index: number, user: string
+
+  // Get users who subscribed on an issue.
+  // issueSubscriptions: (owner: string, repo: string, index: number
+
+  // issueListIssues: (owner: string, repo: string
+
+  // issueAddLabel: (owner: string, repo: string, index: number, body: IssueLabelsOption
+
+  // issueGetLabels: (owner: string, repo: string, index: number
 }

@@ -38,4 +38,20 @@ export class FileChangeHandler extends RepoAccessor {
       return [];
     }
   }
+
+  // Useful for Pull Requests
+  public async compareDiff(
+    base: string,
+    compare: string
+  ): Promise<FileChange[]> {
+    try {
+      const response = await axios.get<FileChange[]>(
+        `https://api.github.com/repos/${this.owner}/${this.repoName}/compare/${base}...${compare}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching file changes:", error);
+      return [];
+    }
+  }
 }

@@ -11,6 +11,16 @@ export class GiteaCollaboratorController
   extends RepoAccessor
   implements ICollaboratorController
 {
+  // Check if a user is a collaborator of a repository
+  public async checkCollaborator(collaborator: string) {
+    const response = await this.api.repos.repoCheckCollaborator(
+      this.owner,
+      this.repoName,
+      collaborator
+    );
+    return response.data;
+  }
+
   public async getCollaborators() {
     const response = await this.api.repos.repoListCollaborators(
       this.owner,
@@ -39,4 +49,6 @@ export class GiteaCollaboratorController
     );
     return response.data;
   }
+
+  // repoListCollaborators: (owner: string, repo: string
 }

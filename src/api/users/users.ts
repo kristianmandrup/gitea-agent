@@ -18,4 +18,9 @@ export class GiteaUserController
     const response = await this.api.users.userCreateToken(username, opts);
     return response.data;
   }
+
+  // userDeleteAccessToken: (username: string, token: string
+  // userListTeams
+  // userGet: (username: string
+  // userListRepos: (username: string
 }

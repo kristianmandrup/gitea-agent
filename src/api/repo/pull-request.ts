@@ -1,5 +1,5 @@
 import { RepoAccessor } from "./repo-accesser";
-import { PullRequest } from "gitea-js";
+import { ChangedFile, PullRequest } from "gitea-js";
 import { GiteaRepositoryController, IRepoController } from "./repository";
 import {
   GiteaPullRequestReviewController,
@@ -14,14 +14,23 @@ export interface IPullRequestController {
   }): Promise<any>;
   getPullRequest(index: number): Promise<PullRequest>;
   listPullRequests(): Promise<PullRequest[]>;
+  listPullRequests(): Promise<PullRequest[]>;
+  getPullRequestFiles(index?: number): Promise<ChangedFile[]>;
 }
 
 export class GiteaPullRequestController extends RepoAccessor {
   reviews: IPullRequestReviewController;
+  index?: number;
 
-  constructor(repo: IRepoController) {
+  constructor(repo: IRepoController, index?: number) {
     super(repo);
     this.reviews = this.createPullRequestReviewController();
+    index && this.setIndex(index);
+  }
+
+  setIndex(index: number) {
+    this.index = index;
+    return this;
   }
 
   createPullRequestReviewController() {
@@ -42,7 +51,10 @@ export class GiteaPullRequestController extends RepoAccessor {
     return response.data;
   }
 
-  async getPullRequest(index: number) {
+  async getPullRequest(index = this.index) {
+    if (!index) {
+      throw new Error("Missing PR index");
+    }
     const response = await this.api.repos.repoGetPullRequest(
       this.owner,
       this.repoName,
@@ -51,10 +63,26 @@ export class GiteaPullRequestController extends RepoAccessor {
     return response.data;
   }
 
+  // Merge PR's baseBranch into headBranch
+  // repoUpdatePullRequest: (owner: string, repo: string, index: number
+
   async listPullRequests() {
     const response = await this.api.repos.repoListPullRequests(
       this.owner,
       this.repoName
+    );
+    return response.data;
+  }
+
+  // Get changed files for a pull request
+  async getPullRequestFiles(index = this.index): Promise<ChangedFile[]> {
+    if (!index) {
+      throw new Error("Missing PR index");
+    }
+    const response = await this.api.repos.repoGetPullRequestFiles(
+      this.owner,
+      this.repoName,
+      index
     );
     return response.data;
   }

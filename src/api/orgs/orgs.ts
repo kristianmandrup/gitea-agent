@@ -51,6 +51,20 @@ export class GiteaOrgController extends GiteaMainAccessor {
     return response.data;
   }
 
+  // orgGet: (org: string
+  // orgDelete: (org: string
+  // orgIsMember: (org: string, username: string
+  // orgDeleteMember: (org: string, username: string
+  // orgAddTeamMember: (id: number, username: string
+  // orgRemoveTeamMember: (id: number, username: string
+  // orgListRepos: (org: string, query?
+  // orgListTeamRepos: (id: number
+  // orgListTeamRepo: (id: number, org: string, repo: string
+  // orgAddTeamRepository: (id: number, org: string, repo: string
+  // orgRemoveTeamRepository: (id: number, org: string, repo: string
+
+  // teamSearch: (org: string, query?
+
   async getTeam(teamId: number) {
     const response = await this.api.teams.orgGetTeam(teamId);
     return response.data;

@@ -94,4 +94,14 @@ export class GiteaRepositoryController
     const response = await this.api.repos.repoEdit(this.owner, this.name, opts);
     return response.data;
   }
+
+  // getTree: (owner: string, repo: string, sha: string
+
+  // repoGetSingleCommit: (owner: string, repo: string, sha: string
+
+  // repoDelete: (owner: string, repo: string
+
+  // repoGetReviewers: (owner: string, repo: string
+
+  // generateRepo: (templateOwner: string, templateRepo: string, body: GenerateRepoOption
 }

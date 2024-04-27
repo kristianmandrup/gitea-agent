@@ -13,4 +13,8 @@ export class GiteaRepoTopicController extends RepoAccessor {
     );
     return response.data;
   }
+
+  // repoDeleteTopic: (owner: string, repo: string, topic: string
+  // repoUpdateTopics: (owner: string, repo: string, body: RepoTopicOptions
+  // repoListTopics: (owner: string, repo: string
 }
