@@ -1,21 +1,21 @@
-import { GiteaRepositoryController } from "./repository";
+import { GiteaRepositoryController, IRepoController } from "./repository";
 
-export class RepoAccesser {
-  repository: GiteaRepositoryController;
+export class RepoAccessor {
+  repo: IRepoController;
 
-  constructor(repository: GiteaRepositoryController) {
-    this.repository = repository;
+  constructor(repo: IRepoController) {
+    this.repo = repo;
   }
 
   get api() {
-    return this.repository.api;
+    return this.repo.api;
   }
 
   get owner() {
-    return this.repository.owner;
+    return this.repo.owner;
   }
 
   get repoName() {
-    return this.repository.name;
+    return this.repo.name;
   }
 }

@@ -3,7 +3,7 @@ import {
   BranchProtection,
   CreateBranchProtectionOption,
 } from "gitea-js";
-import { RepoAccesser } from "./repo-accesser";
+import { RepoAccessor } from "./repo-accesser";
 
 export interface IBranchController {
   createBranch(branchName: string): Promise<Branch>;
@@ -16,7 +16,7 @@ export interface IBranchController {
   getBranch(branchName: string): Promise<Branch>;
 }
 
-export class GiteaBranchController extends RepoAccesser {
+export class GiteaBranchController extends RepoAccessor {
   async createBranch(branchName: string) {
     const response = await this.api.repos.repoCreateBranch(
       this.owner,

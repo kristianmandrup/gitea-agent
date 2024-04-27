@@ -1,5 +1,5 @@
 import { User } from "gitea-js";
-import { RepoAccesser } from "./repo-accesser";
+import { RepoAccessor } from "./repo-accesser";
 
 export interface ICollaboratorController {
   getCollaborators(): Promise<User[]>;
@@ -8,7 +8,7 @@ export interface ICollaboratorController {
 }
 
 export class GiteaCollaboratorController
-  extends RepoAccesser
+  extends RepoAccessor
   implements ICollaboratorController
 {
   public async getCollaborators() {

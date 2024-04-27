@@ -1,8 +1,8 @@
 import { CreateIssueOption, Issue } from "gitea-js";
-import { RepoAccesser } from "./repo-accesser";
-import { GiteaRepositoryController } from "./repository";
+import { RepoAccessor } from "./repo-accesser";
+import { GiteaRepositoryController, IRepoController } from "./repository";
 
-export interface IIssueController {
+export interface IRepoIssueController {
   createIssue(
     title: string,
     body: string,
@@ -10,11 +10,11 @@ export interface IIssueController {
   ): Promise<Issue>;
 }
 
-export class GiteaRepoIssueController extends RepoAccesser {
+export class GiteaRepoIssueController extends RepoAccessor {
   issue?: Issue;
 
-  constructor(repository: GiteaRepositoryController) {
-    super(repository);
+  constructor(repo: IRepoController) {
+    super(repo);
   }
 
   get index() {

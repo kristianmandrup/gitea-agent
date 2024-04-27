@@ -1,7 +1,10 @@
-import { RepoAccesser } from "./repo-accesser";
+import { RepoAccessor } from "./repo-accesser";
 import { PullRequest } from "gitea-js";
-import { GiteaRepositoryController } from "./repository";
-import { GiteaPullRequestReviewController } from "./pr-review";
+import { GiteaRepositoryController, IRepoController } from "./repository";
+import {
+  GiteaPullRequestReviewController,
+  IPullRequestReviewController,
+} from "./pr-review";
 
 export interface IPullRequestController {
   createPullRequest(opts: {
@@ -13,16 +16,16 @@ export interface IPullRequestController {
   listPullRequests(): Promise<PullRequest[]>;
 }
 
-export class GiteaPullRequestController extends RepoAccesser {
-  reviews;
+export class GiteaPullRequestController extends RepoAccessor {
+  reviews: IPullRequestReviewController;
 
-  constructor(repository: GiteaRepositoryController) {
-    super(repository);
+  constructor(repo: IRepoController) {
+    super(repo);
     this.reviews = this.createPullRequestReviewController();
   }
 
   createPullRequestReviewController() {
-    return new GiteaPullRequestReviewController(this.repository);
+    return new GiteaPullRequestReviewController(this.repo);
   }
 
   async createPullRequest(opts: {

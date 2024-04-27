@@ -1,16 +1,31 @@
-import { Team } from "gitea-js";
-import { GiteaApiAccesser } from "../api";
+import { Repository, Team } from "gitea-js";
+import { GiteaMainAccessor } from "../main-accesser";
+import { IMainController } from "../main";
 
-export class GiteaTeamController extends GiteaApiAccesser {
-  team: Team;
+export interface ITeamController {
+  team?: Team;
+  setTeam(team: Team): this;
+  deleteTeam(): Promise<void>;
+  deleteTeamMember(username: string): Promise<any>;
+  addTeamMember(username: string): Promise<any>;
+  getTeamRepos(): Promise<Repository[]>;
+  getTeam(id: number): Promise<Team>;
+  listTeamMembers(): Promise<any[]>;
+}
 
-  constructor(team: Team) {
-    super();
+export class GiteaTeamController
+  extends GiteaMainAccessor
+  implements ITeamController
+{
+  team?: Team;
+
+  constructor(main: IMainController, team?: Team) {
+    super(main);
     this.team = team;
   }
 
   get id() {
-    return this.team.id;
+    return this.team?.id;
   }
 
   setTeam(team: Team) {

@@ -4,8 +4,8 @@ import {
   PullReview,
   PullReviewRequestOptions,
 } from "gitea-js";
-import { RepoAccesser } from "./repo-accesser";
-import { GiteaRepositoryController } from "./repository";
+import { RepoAccessor } from "./repo-accesser";
+import { IRepoController } from "./repository";
 
 export interface IPullRequestReviewController {
   createPullReviewRequests(
@@ -14,11 +14,11 @@ export interface IPullRequestReviewController {
   createPullRequestReview(opts: CreatePullReviewOptions): Promise<PullReview>;
 }
 
-export class GiteaPullRequestReviewController extends RepoAccesser {
+export class GiteaPullRequestReviewController extends RepoAccessor {
   pr?: PullRequest;
 
-  constructor(repository: GiteaRepositoryController) {
-    super(repository);
+  constructor(repo: IRepoController) {
+    super(repo);
   }
 
   get index() {

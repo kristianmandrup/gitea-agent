@@ -1,10 +1,10 @@
-import { RepoAccesser } from "./repo-accesser";
+import { RepoAccessor } from "./repo-accesser";
 
-export interface ITeamController {
+export interface IRepoTeamController {
   addTeam(teamId: string): Promise<any>;
 }
 
-export class GiteaRepoTeamController extends RepoAccesser {
+export class GiteaRepoTeamController extends RepoAccessor {
   async addTeam(teamId: string) {
     const response = await this.api.repos.repoAddTeam(
       this.owner,

@@ -6,12 +6,29 @@ See [Gitea](https://github.com/go-gitea/gitea)
 
 The various controllers are all exported from the main `index.ts` file in the `src` folder.
 
+The `GiteaMainController` is the `main` controller that acts as a hub for all the other primary controllers
+
 - `admin`
 - `orgs`
 - `repo`
 - `teams`
 - `users`
-- `api`
+
+```ts
+const main = new GiteaMainController();
+main.orgs
+  .createOrganization
+  // ...
+  ();
+main.admin
+  .createUser
+  // ...
+  ();
+// ...
+
+main.addRepoController('myaccount', 'myreponame')
+main.repos[]
+```
 
 The `repo` folder contains most of the key concepts to work with repositories, including:
 

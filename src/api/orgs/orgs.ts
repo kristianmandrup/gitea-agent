@@ -1,20 +1,40 @@
-import { CreateOrgOption, CreateTeamOption, Organization } from "gitea-js";
-import { GiteaApiAccesser } from "../api";
+import {
+  CreateOrgOption,
+  CreateTeamOption,
+  Organization,
+  Team,
+  User,
+} from "gitea-js";
+import { GiteaApiAccessor } from "../api";
+import { GiteaMainAccessor } from "../main-accesser";
+import { IMainController } from "../main";
 
-export class GiteaOrgController extends GiteaApiAccesser {
-  organization: Organization;
+export interface IOrgController {
+  setOrganization(organization: Organization): IOrgController;
+  createOrganization(
+    username: string,
+    opts: CreateOrgOption
+  ): Promise<Organization>;
+  getTeam(teamId: number): Promise<Team>;
+  listMembers(): Promise<User[]>;
+  createTeam(teamName: string, opts?: CreateTeamOption): Promise<Team>;
+  listTeams(): Promise<Team[]>;
+}
 
-  constructor(organization: Organization) {
-    super();
+export class GiteaOrgController extends GiteaMainAccessor {
+  organization?: Organization;
+
+  constructor(main: IMainController, organization?: Organization) {
+    super(main);
     this.organization = organization;
   }
 
   get name() {
-    return this.organization.name;
+    return this.organization?.name;
   }
 
   get id() {
-    return this.organization.id;
+    return this.organization?.id;
   }
 
   setOrganization(organization: Organization) {

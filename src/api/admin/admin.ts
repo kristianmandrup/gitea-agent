@@ -1,9 +1,13 @@
 import { CreateOrgOption, CreateUserOption } from "gitea-js";
-import { GiteaApiAccesser } from "../api";
+import { GiteaApiAccessor } from "../api";
+import { IMainController } from "../main";
+import { GiteaMainAccessor } from "../main-accesser";
 
-export class GiteaAdminController extends GiteaApiAccesser {
-  constructor() {
-    super();
+export interface IAdminController {}
+
+export class GiteaAdminController extends GiteaMainAccessor {
+  constructor(main: IMainController) {
+    super(main);
   }
 
   async createUser(opts: CreateUserOption) {

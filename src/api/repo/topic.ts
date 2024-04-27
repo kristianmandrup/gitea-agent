@@ -1,10 +1,10 @@
-import { RepoAccesser } from "./repo-accesser";
+import { RepoAccessor } from "./repo-accesser";
 
-export interface ITopicController {
+export interface IRepoTopicController {
   addTopic(topic: string): Promise<any>;
 }
 
-export class GiteaRepoTopicController extends RepoAccesser {
+export class GiteaRepoTopicController extends RepoAccessor {
   async addTopic(topic: string) {
     const response = await this.api.repos.repoAddTopic(
       this.owner,

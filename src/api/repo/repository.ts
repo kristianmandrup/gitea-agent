@@ -1,5 +1,4 @@
-import { GiteaApi, GiteaApiAccesser, api } from "../api";
-import { Repository } from "gitea-js";
+import { EditRepoOption, Repository } from "gitea-js";
 import {
   GiteaCollaboratorController,
   ICollaboratorController,
@@ -9,47 +8,72 @@ import {
   GiteaPullRequestController,
   IPullRequestController,
 } from "./pull-request";
-import { GiteaRepoTeamController, ITeamController } from "./team";
-import { GiteaRepoTopicController, ITopicController } from "./topic";
-import { GiteaRepoIssueController, IIssueController } from "./issue";
+import { GiteaRepoTeamController, IRepoTeamController } from "./team";
+import { GiteaRepoTopicController, IRepoTopicController } from "./topic";
+import { GiteaRepoIssueController, IRepoIssueController } from "./issue";
+import { IMainController } from "../main";
+import { GiteaMainAccessor, IMainAccessor } from "../main-accesser";
+import { GiteaRepoFilesController, IRepoFilesController } from "./files";
 
-export class GiteaRepositoryController extends GiteaApiAccesser {
+export interface IRepoController extends IMainAccessor {
+  owner: string;
+  name: string;
+  repository?: Repository;
+  getRepo(): Promise<Repository>;
+  editRepo(opts: EditRepoOption): Promise<Repository>;
+  setRepository(repository: Repository): IRepoController;
+}
+
+export class GiteaRepositoryController
+  extends GiteaMainAccessor
+  implements IRepoController
+{
   owner: string;
   name: string;
   repository?: Repository;
   collaborators: ICollaboratorController;
   branches: IBranchController;
   pullRequests: IPullRequestController;
-  teams: ITeamController;
-  topics: ITopicController;
-  issues: IIssueController;
+  teams: IRepoTeamController;
+  topics: IRepoTopicController;
+  issues: IRepoIssueController;
+  files: IRepoFilesController;
 
-  constructor(owner: string, name: string) {
-    super();
+  constructor(main: IMainController, owner: string, name: string) {
+    super(main);
     this.owner = owner;
     this.name = name;
-    this.gitea = api;
     this.collaborators = this.createCollaboratorController();
     this.branches = this.createBranchController();
     this.pullRequests = this.createPullRequestController();
     this.teams = this.createTeamController();
     this.topics = this.createTopicController();
     this.issues = this.createIssueController();
+    this.files = this.createFilesController();
   }
 
-  createIssueController() {
+  setRepository(repository: Repository) {
+    this.repository = repository;
+    return this;
+  }
+
+  protected createFilesController() {
+    return new GiteaRepoFilesController(this);
+  }
+
+  protected createIssueController() {
     return new GiteaRepoIssueController(this);
   }
 
-  createTopicController() {
+  protected createTopicController() {
     return new GiteaRepoTopicController(this);
   }
 
-  createTeamController() {
+  protected createTeamController() {
     return new GiteaRepoTeamController(this);
   }
 
-  createPullRequestController() {
+  protected createPullRequestController() {
     return new GiteaPullRequestController(this);
   }
 
@@ -63,6 +87,11 @@ export class GiteaRepositoryController extends GiteaApiAccesser {
 
   async getRepo() {
     const response = await this.api.repos.repoGet(this.owner, this.name);
-    this.repository = response.data;
+    return response.data;
+  }
+
+  async editRepo(opts: EditRepoOption) {
+    const response = await this.api.repos.repoEdit(this.owner, this.name, opts);
+    return response.data;
   }
 }

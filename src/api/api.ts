@@ -18,7 +18,7 @@ export class GiteaApi {
 
 export const api = new GiteaApi();
 
-export class GiteaApiAccesser {
+export class GiteaApiAccessor {
   gitea: GiteaApi;
 
   constructor() {

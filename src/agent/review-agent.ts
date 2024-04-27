@@ -1,6 +1,6 @@
 import { FileChange, FileChangeHandler } from "../api/repo/file-change";
 import { GiteaRepositoryController } from "../api/repo/repository";
-import { RepoAccesser } from "../api/repo/repo-accesser";
+import { RepoAccessor } from "../api/repo/repo-accesser";
 
 interface PullRequest {
   id: number;
@@ -13,7 +13,7 @@ interface ReviewSuggestion {
   comment: string;
 }
 
-export class ReviewSuggestions extends RepoAccesser {
+export class ReviewSuggestions extends RepoAccessor {
   pullRequest: PullRequest;
   fileChangeHandler: FileChangeHandler;
 
