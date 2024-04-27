@@ -31,23 +31,36 @@ export class GiteaRepoIssueController extends RepoAccessor {
       this.repoName,
       { ...opts, body, title }
     );
+    const notification = {
+      ...this.repoData,
+      ...opts,
+      body,
+      title,
+    };
+    await this.notify("issue:create", notification);
     return response.data;
   }
 
-  async createComment(body: string) {
-    if (!this.index) {
+  async createComment(body: string, index = this.index) {
+    if (!index) {
       throw new Error(`Issue is missing or has no index`);
     }
     const response = await this.api.repos.issueCreateComment(
       this.owner,
       this.repoName,
-      this.index,
+      index,
       { body }
     );
+    const notification = {
+      ...this.repoData,
+      index,
+      body,
+    };
+    await this.notify("issue:comment", notification);
     return response.data;
   }
 
-  // issueCreateMilestone: (owner: string, repo: string, body: CreateMilestoneOption
+  // issueCreateMilestone(owner: string, repo: string, body: CreateMilestoneOption)
   // issueGetMilestonesList: (owner: string, repo: string, query?
   // issueGetMilestone: (owner: string, repo: string, id: string
   // issueDeleteMilestone: (owner: string, repo: string, id: string

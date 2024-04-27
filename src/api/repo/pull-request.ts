@@ -1,10 +1,12 @@
 import { RepoAccessor } from "./repo-accesser";
-import { ChangedFile, PullRequest } from "gitea-js";
+import { ChangedFile, CreatePullRequestOption, PullRequest } from "gitea-js";
 import { GiteaRepositoryController, IRepoController } from "./repository";
 import {
   GiteaPullRequestReviewController,
   IPullRequestReviewController,
 } from "./pr-review";
+
+export type MergeStyle = "merge" | "rebase";
 
 export interface IPullRequestController {
   createPullRequest(opts: {
@@ -37,17 +39,33 @@ export class GiteaPullRequestController extends RepoAccessor {
     return new GiteaPullRequestReviewController(this.repo);
   }
 
-  async createPullRequest(opts: {
-    assignees?: string[];
-    // labels?: number[];
-    title?: string;
-    body?: string;
-  }) {
+  // CreatePullRequestOption
+  // Use /compare endpoint to compare base and head to get the diffs of the files
+  // See FileChangeHandler
+  // CreatePullRequestOption contains:
+  // assignee?: string;
+  // assignees?: string[];
+  // base?: string; - base commit of the PR (first commit part of PR)
+  // body?: string;
+  // /** @format date-time */
+  // due_date?: string;
+  // head?: string; - head of the PR (latest commits)
+  // labels?: number[];
+  // /** @format int64 */
+  // milestone?: number;
+  // title?: string;
+
+  async createPullRequest(opts: CreatePullRequestOption) {
     const response = await this.api.repos.repoCreatePullRequest(
       this.owner,
       this.repoName,
       opts
     );
+    const notification = {
+      ...this.repoData,
+      ...opts,
+    };
+    await this.notify("repo:pull_request", notification);
     return response.data;
   }
 
@@ -65,6 +83,20 @@ export class GiteaPullRequestController extends RepoAccessor {
 
   // Merge PR's baseBranch into headBranch
   // repoUpdatePullRequest: (owner: string, repo: string, index: number
+  async updatePullRequest(style: MergeStyle = "merge", index = this.index) {
+    if (!index) {
+      throw new Error("Missing PR index");
+    }
+    const response = await this.api.repos.repoUpdatePullRequest(
+      this.owner,
+      this.repoName,
+      index,
+      {
+        style,
+      }
+    );
+    return response.data;
+  }
 
   async listPullRequests() {
     const response = await this.api.repos.repoListPullRequests(

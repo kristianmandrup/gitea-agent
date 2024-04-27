@@ -1,8 +1,10 @@
 import {
   CreatePullReviewOptions,
+  DismissPullReviewOptions,
   PullRequest,
   PullReview,
   PullReviewRequestOptions,
+  SubmitPullReviewOptions,
 } from "gitea-js";
 import { RepoAccessor } from "./repo-accesser";
 import { IRepoController } from "./repository";
@@ -29,14 +31,107 @@ export class GiteaPullRequestReviewController extends RepoAccessor {
     this.pr = pr;
   }
 
-  // repoGetPullReview: (owner: string, repo: string, index: number, id: number
-  // repoCreatePullReview: (owner: string, repo: string, index: number, body: CreatePullReviewOptions
-  // repoDeletePullReview: (owner: string, repo: string, index: number, id: number
-  // Submit a pending review to an pull request
-  // repoSubmitPullReview: (owner: string, repo: string, index: number, id: number, body: SubmitPullReviewOptions
+  async listPullReviews(id: number, index = this.index) {
+    if (!index) {
+      throw new Error(`PR is missing or has no index`);
+    }
+    const response = await this.api.repos.repoListPullReviews(
+      this.owner,
+      this.repoName,
+      index
+    );
+    return response.data;
+  }
 
-  // repoGetPullReviewComments: (owner: string, repo: string, index: number, id: number
-  // repoDismissPullReview: (owner: string, repo: string, index: number, id: number, body: DismissPullReviewOptions
+  async getPullReview(id: number, index = this.index) {
+    if (!index) {
+      throw new Error(`PR is missing or has no index`);
+    }
+    const response = await this.api.repos.repoGetPullReview(
+      this.owner,
+      this.repoName,
+      index,
+      id
+    );
+    return response.data;
+  }
+
+  async deletePullReview(id: number, index = this.index) {
+    if (!index) {
+      throw new Error(`PR is missing or has no index`);
+    }
+    const response = await this.api.repos.repoDeletePullReview(
+      this.owner,
+      this.repoName,
+      index,
+      id
+    );
+    return response.data;
+  }
+
+  async getPullReviewComments(id: number, index = this.index) {
+    if (!index) {
+      throw new Error(`PR is missing or has no index`);
+    }
+    const response = await this.api.repos.repoGetPullReviewComments(
+      this.owner,
+      this.repoName,
+      index,
+      id
+    );
+    return response.data;
+  }
+
+  // Submit a pending review to an pull request
+  async submitPendingPullReview(
+    id: number,
+    body: SubmitPullReviewOptions,
+    index = this.index
+  ) {
+    if (!index) {
+      throw new Error(`PR is missing or has no index`);
+    }
+    const response = await this.api.repos.repoSubmitPullReview(
+      this.owner,
+      this.repoName,
+      index,
+      id,
+      body
+    );
+    const notification = {
+      ...this.repoData,
+      index,
+      id,
+      body,
+    };
+    await this.notify("repo:pull_review:submit:pending", notification);
+    return response.data;
+  }
+
+  async dismissPullReview(
+    id: number,
+    body: DismissPullReviewOptions,
+    index = this.index
+  ) {
+    if (!index) {
+      throw new Error(`PR is missing or has no index`);
+    }
+    const response = await this.api.repos.repoDismissPullReview(
+      this.owner,
+      this.repoName,
+      index,
+      id,
+      body
+    );
+    const notification = {
+      ...this.repoData,
+      index,
+      id,
+      body,
+    };
+    await this.notify("repo:pull_review:dismiss", notification);
+    return response.data;
+  }
 
   async createPullReviewRequests(opts: PullReviewRequestOptions) {
     if (!this.index) {
@@ -50,9 +145,6 @@ export class GiteaPullRequestReviewController extends RepoAccessor {
     );
     return response.data;
   }
-
-  // repoDeletePullReviewRequests: (owner: string, repo: string, index: number, body: PullReviewRequestOptions
-  // repoListPullReviews: (owner: string, repo: string, index: number
 
   async createPullRequestReview(opts: CreatePullReviewOptions) {
     if (!this.index) {

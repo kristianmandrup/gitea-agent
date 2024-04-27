@@ -1,6 +1,7 @@
 import {
   ChangeFileOperation,
   ChangeFilesOptions,
+  FileCommitResponse,
   FilesResponse,
 } from "gitea-js";
 import { RepoAccessor } from "./repo-accesser";
@@ -38,7 +39,30 @@ export class GiteaRepoFilesController extends RepoAccessor {
   // repoApplyDiffPatch: (owner: string, repo: string, body: UpdateFileOptions
 
   // content, path, operation
-  async changeFiles(files: ChangeFileOperation[], opts?: ChangeFilesOptions) {
+  // This is essentially a commit
+  // The response contains:
+  // commit?: FileCommitResponse;
+  // files?: ContentsResponse[];
+  // The FileCommitResponse contains
+  // message?: string;
+  // parents?: CommitMeta[];
+  // sha?: string;
+  // tree?: CommitMeta;
+  // CommitMeta contains:
+  // created?: string;
+  // sha?: string;
+  // url?: string;
+
+  // The ContentsResponse contains:
+  // last_commit_sha?: string;
+  // name?: string;
+  // path?: string;
+  // sha?: string;
+
+  async changeFiles(
+    files: ChangeFileOperation[],
+    opts?: ChangeFilesOptions
+  ): Promise<FilesResponse> {
     const fullOpts = {
       ...(opts || {}),
       files,
