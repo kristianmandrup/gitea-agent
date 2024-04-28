@@ -1,3 +1,5 @@
+import { MainActionHandler } from "./action-handler";
+import { Action, ActionHandler } from "./actions";
 import { GiteaAdminController, IAdminController } from "./admin";
 import { GiteaApi, GiteaApiAccessor } from "./api";
 import { GiteaOrgController, IOrgController } from "./orgs";
@@ -21,6 +23,7 @@ export class GiteaMainController extends GiteaApiAccessor {
   orgs: IOrgController;
   teams: ITeamController;
   users: IUserController;
+  actionHandler: ActionHandler;
 
   // repos
   owners: Record<string, RepoMap> = {};
@@ -33,6 +36,15 @@ export class GiteaMainController extends GiteaApiAccessor {
     this.orgs = this.createOrgController();
     this.teams = this.createTeamsController();
     this.users = this.createUsersController();
+    this.actionHandler = this.createActionHandler();
+  }
+
+  async handle(action: Action) {
+    return await this.actionHandler.handle(action);
+  }
+
+  createActionHandler() {
+    return new MainActionHandler(this);
   }
 
   createUsersController() {

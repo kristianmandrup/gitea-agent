@@ -76,4 +76,6 @@ A main `ActionHandler` for branches functionality is available with an `ActionHa
 
 Each `ActionHandler` has an async `handle(action: Action)` method which takes an action, looks up a matching handler in the registry. If a handler is found, it calls the `handle(action)` method of that handle to handle it. The handler will have access to the main gitea controller that exposes the relevant Gitea API as methods that can be executed with the arguments of the action.
 
-The main `ActionHandler` for branches has not yet been integrated with the `GiteaMainController` however.
+The main `ActionHandler` for branches has been integrated with an `ActionHandler` for repos which has in turn been registered with the root `ActionHandler` for the main controller.
+
+The `GiteaMainController` now exposes an async `handle` method which calls each of these handlers recursively down the tree, until a matching `LeafActionHandler` is found which can execute the action.
