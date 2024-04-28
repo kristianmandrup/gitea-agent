@@ -1,4 +1,4 @@
-import { EditRepoOption, Repository } from "gitea-js";
+import { EditRepoOption, GenerateRepoOption, Repository } from "gitea-js";
 import {
   GiteaCollaboratorController,
   ICollaboratorController,
@@ -14,11 +14,20 @@ import { GiteaRepoIssueController, IRepoIssueController } from "./issue";
 import { IMainController } from "../main";
 import { GiteaMainAccessor, IMainAccessor } from "../main-accesser";
 import { GiteaRepoFilesController, IRepoFilesController } from "./files";
+import { GiteaRepoCommitsController, IRepoCommitsController } from "./commits";
 
 export interface IRepoController extends IMainAccessor {
   owner: string;
   name: string;
   repository?: Repository;
+  collaborators: ICollaboratorController;
+  branches: IBranchController;
+  pullRequests: IPullRequestController;
+  teams: IRepoTeamController;
+  topics: IRepoTopicController;
+  issues: IRepoIssueController;
+  files: IRepoFilesController;
+  commits: IRepoCommitsController;
   getRepo(): Promise<Repository>;
   editRepo(opts: EditRepoOption): Promise<Repository>;
   setRepository(repository: Repository): IRepoController;
@@ -38,6 +47,7 @@ export class GiteaRepositoryController
   topics: IRepoTopicController;
   issues: IRepoIssueController;
   files: IRepoFilesController;
+  commits: IRepoCommitsController;
 
   constructor(main: IMainController, owner: string, name: string) {
     super(main);
@@ -50,11 +60,16 @@ export class GiteaRepositoryController
     this.topics = this.createTopicController();
     this.issues = this.createIssueController();
     this.files = this.createFilesController();
+    this.commits = this.createCommitsController();
   }
 
   setRepository(repository: Repository) {
     this.repository = repository;
     return this;
+  }
+
+  protected createCommitsController() {
+    return new GiteaRepoCommitsController(this);
   }
 
   protected createFilesController() {
@@ -95,13 +110,30 @@ export class GiteaRepositoryController
     return response.data;
   }
 
-  // getTree: (owner: string, repo: string, sha: string
+  async getTree(sha: string) {
+    const response = await this.api.repos.getTree(this.owner, this.name, sha);
+    return response.data;
+  }
 
-  // repoGetSingleCommit: (owner: string, repo: string, sha: string
+  async deleteRepo() {
+    const response = await this.api.repos.repoDelete(this.owner, this.name);
+    return response.data;
+  }
 
-  // repoDelete: (owner: string, repo: string
+  async getReviewers() {
+    const response = await this.api.repos.repoGetReviewers(
+      this.owner,
+      this.name
+    );
+    return response.data;
+  }
 
-  // repoGetReviewers: (owner: string, repo: string
-
-  // generateRepo: (templateOwner: string, templateRepo: string, body: GenerateRepoOption
+  async generateFromRepoTemplate(
+    owner: string,
+    repoName: string,
+    opts: GenerateRepoOption
+  ) {
+    const response = await this.api.repos.generateRepo(owner, repoName, opts);
+    return response.data;
+  }
 }

@@ -32,12 +32,17 @@ main.repos[]
 
 The `repo` folder contains most of the key concepts to work with repositories, including:
 
+- `commits`
 - `branches`
 - `issues`
 - `teams`
 - `collaborators`
 - `pullRequests`
 - `topics`
+
+`issues` include
+
+- `milestones`
 
 `pullRequests` include:
 
@@ -59,3 +64,16 @@ const api = giteaApi("https://try.gitea.com/", {
 const repo = api.repos.repoGet("anbraten", "gitea-js");
 console.log(repo);
 ```
+
+## AI Actions/Tools
+
+The main infrastructure for actions has been implemented and a sample is available for repo branches in the form of:
+
+- action definitions
+- action handlers
+
+A main `ActionHandler` for branches functionality is available with an `ActionHandlerRegistry` as `handlerRegistry: ActionHandlerRegistry` that is initialized with these action handlers.
+
+Each `ActionHandler` has an async `handle(action: Action)` method which takes an action, looks up a matching handler in the registry. If a handler is found, it calls the `handle(action)` method of that handle to handle it. The handler will have access to the main gitea controller that exposes the relevant Gitea API as methods that can be executed with the arguments of the action.
+
+The main `ActionHandler` for branches has not yet been integrated with the `GiteaMainController` however.

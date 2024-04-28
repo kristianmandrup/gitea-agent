@@ -1,4 +1,4 @@
-export * from "./branch";
+export * from "./branch/branch";
 export * from "./file-change";
 export * from "./pr-review";
 export * from "./pull-request";

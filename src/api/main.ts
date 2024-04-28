@@ -7,6 +7,11 @@ import { GiteaUserController, IUserController } from "./users";
 
 export interface IMainController {
   gitea: GiteaApi;
+  admin: IAdminController;
+  orgs: IOrgController;
+  teams: ITeamController;
+  users: IUserController;
+  repos: IRepoController;
 }
 
 export type RepoMap = Record<string, IRepoController>;

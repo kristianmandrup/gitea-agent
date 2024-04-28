@@ -3,21 +3,21 @@ import {
   BranchProtection,
   CreateBranchProtectionOption,
 } from "gitea-js";
-import { RepoAccessor } from "./repo-accesser";
+import { RepoAccessor } from "../repo-accesser";
 
 export interface IBranchController {
-  createBranch(branchName: string): Promise<Branch>;
+  create(branchName: string): Promise<Branch>;
   createBranchProtection(
     branchName: string,
     opts: CreateBranchProtectionOption
   ): Promise<BranchProtection>;
-  deleteBranch(branchName: string): Promise<any>;
-  listBranches(): Promise<Branch[]>;
-  getBranch(branchName: string): Promise<Branch>;
+  delete(branchName: string): Promise<any>;
+  list(): Promise<Branch[]>;
+  getNamed(branchName: string): Promise<Branch>;
 }
 
 export class GiteaBranchController extends RepoAccessor {
-  async createBranch(branchName: string) {
+  async create(branchName: string) {
     const response = await this.api.repos.repoCreateBranch(
       this.owner,
       this.repoName,
@@ -25,19 +25,32 @@ export class GiteaBranchController extends RepoAccessor {
         new_branch_name: branchName,
       }
     );
+    const notification = {
+      ...this.repoData,
+      branchName,
+    };
+    await this.notify("repo:branch:create", notification);
     return response.data;
   }
 
   async createBranchProtection(
     branchName: string,
-    opts: CreateBranchProtectionOption
+    opts?: CreateBranchProtectionOption
   ) {
-    opts.branch_name = opts.branch_name || branchName;
+    const fullOpts = {
+      ...(opts || {}),
+      branch_name: branchName,
+    };
     const response = await this.api.repos.repoCreateBranchProtection(
       this.owner,
       this.repoName,
-      opts
+      fullOpts
     );
+    const notification = {
+      ...this.repoData,
+      ...fullOpts,
+    };
+    await this.notify("repo:branch:protection:create", notification);
     return response.data;
   }
 
@@ -45,16 +58,21 @@ export class GiteaBranchController extends RepoAccessor {
   // repoDeleteBranchProtection: (owner: string, repo: string, name: string
   // repoListBranchProtection: (owner: string, repo: string
 
-  async deleteBranch(branchName: string) {
+  async delete(branchName: string) {
     const response = await this.api.repos.repoDeleteBranch(
       this.owner,
       this.repoName,
       branchName
     );
+    const notification = {
+      ...this.repoData,
+      branchName,
+    };
+    await this.notify("repo:branch:delete", notification);
     return response.data;
   }
 
-  async listBranches() {
+  async list() {
     const response = await this.api.repos.repoListBranches(
       this.owner,
       this.repoName
@@ -62,7 +80,7 @@ export class GiteaBranchController extends RepoAccessor {
     return response.data;
   }
 
-  async getBranch(branchName: string) {
+  async getNamed(branchName: string) {
     const response = await this.api.repos.repoGetBranch(
       this.owner,
       this.repoName,
