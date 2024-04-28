@@ -13,6 +13,7 @@ export class Action {
 
 export interface IActionHandler {
   name: string;
+  type: string;
   handle(action: Action): Promise<void>;
 }
 
@@ -21,6 +22,7 @@ export class LeafActionHandler
   implements IActionHandler
 {
   name = "unknown";
+  type = "leaf";
 
   constructor(main: IMainController) {
     super(main);
@@ -37,6 +39,7 @@ export class LeafActionHandler
 export type ActionHandlerFactoryFn = (main: IMainController) => IActionHandler;
 
 export class ActionHandler extends LeafActionHandler {
+  type = "composite";
   handlerRegistry: ActionHandlerRegistry = {};
 
   get handlers(): ActionHandlerFactoryFn[] {
@@ -57,13 +60,34 @@ export class ActionHandler extends LeafActionHandler {
     return [];
   }
 
-  async handle(action: Action) {
+  get compositeHandlers() {
+    const handlers: IActionHandler[] = Object.values(this.handlerRegistry);
+    return handlers.filter(
+      (handler: IActionHandler) => handler.type === "composite"
+    );
+  }
+
+  async handleComposites(action: Action) {
+    for (const composite of this.compositeHandlers) {
+      await composite.handle(action);
+    }
+  }
+
+  async handleLeaves(action: Action) {
     const handler = this.handlerRegistry[action.name];
     if (!handler) {
       // notify no handler for action
+      return false;
+    }
+    return await handler.handle(action);
+  }
+
+  async handle(action: Action) {
+    const result = await this.handleLeaves(action);
+    if (result) {
       return;
     }
-    await handler.handle(action);
+    await this.handleComposites(action);
   }
 }
 
