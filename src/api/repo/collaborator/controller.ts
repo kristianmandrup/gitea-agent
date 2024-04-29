@@ -1,27 +1,38 @@
 import { User } from "gitea-js";
-import { RepoAccessor } from "./repo-accesser";
+import { RepoAccessor } from "../repo-accesser";
 
 export interface ICollaboratorController {
-  getCollaborators(): Promise<User[]>;
-  addCollaborator(collaboratorId: string): Promise<any>;
-  deleteCollaborator(collaboratorId: string): Promise<any>;
+  list(): Promise<User[]>;
+  add(id?: string): Promise<any>;
+  delete(id?: string): Promise<any>;
+  check(id?: string): Promise<any>;
 }
 
 export class GiteaCollaboratorController
   extends RepoAccessor
   implements ICollaboratorController
 {
+  id?: string;
+
+  setId(id: string) {
+    this.id = id;
+    return this;
+  }
+
   // Check if a user is a collaborator of a repository
-  public async checkCollaborator(collaborator: string) {
+  public async check(id = this.id) {
+    if (!id) {
+      throw new Error("Missing collaborator id");
+    }
     const response = await this.api.repos.repoCheckCollaborator(
       this.owner,
       this.repoName,
-      collaborator
+      id
     );
     return response.data;
   }
 
-  public async getCollaborators() {
+  public async list() {
     const response = await this.api.repos.repoListCollaborators(
       this.owner,
       this.repoName
@@ -29,11 +40,11 @@ export class GiteaCollaboratorController
     return response.data;
   }
 
-  public async addCollaborator(collaboratorId: string) {
+  public async add(newId: string) {
     const response = await this.api.repos.repoAddCollaborator(
       this.owner,
       this.repoName,
-      collaboratorId,
+      newId,
       {
         permission: "write",
       }
@@ -41,14 +52,15 @@ export class GiteaCollaboratorController
     return response.data;
   }
 
-  public async deleteCollaborator(collaboratorId: string) {
+  public async delete(id = this.id) {
+    if (!id) {
+      throw new Error("Missing collaborator id");
+    }
     const response = await this.api.repos.repoDeleteCollaborator(
       this.owner,
       this.repoName,
-      collaboratorId
+      id
     );
     return response.data;
   }
-
-  // repoListCollaborators: (owner: string, repo: string
 }

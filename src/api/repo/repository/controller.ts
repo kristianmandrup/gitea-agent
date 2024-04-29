@@ -2,19 +2,26 @@ import { EditRepoOption, GenerateRepoOption, Repository } from "gitea-js";
 import {
   GiteaCollaboratorController,
   ICollaboratorController,
-} from "./collaborator";
-import { GiteaBranchController, IBranchController } from "./branch";
+} from "../collaborator/controller";
+import { GiteaBranchController, IBranchController } from "../branch";
 import {
   GiteaPullRequestController,
   IPullRequestController,
-} from "./pull-request";
-import { GiteaRepoTeamController, IRepoTeamController } from "./team";
-import { GiteaRepoTopicController, IRepoTopicController } from "./topic";
-import { GiteaRepoIssueController, IRepoIssueController } from "./issue";
-import { IMainController } from "../main";
-import { GiteaMainAccessor, IMainAccessor } from "../main-accesser";
-import { GiteaRepoFilesController, IRepoFilesController } from "./files";
-import { GiteaRepoCommitsController, IRepoCommitsController } from "./commits";
+} from "../pull-request";
+import {
+  GiteaRepoTeamController,
+  IRepoTeamController,
+} from "../team/controller";
+import { GiteaRepoTopicController, IRepoTopicController } from "../topic";
+import { GiteaRepoIssueController, IRepoIssueController } from "../issue";
+import { IMainController } from "../../main";
+import { GiteaMainAccessor, IMainAccessor } from "../../main-accesser";
+import { GiteaRepoFilesController, IRepoFilesController } from "../files";
+import { GiteaRepoCommitsController, IRepoCommitsController } from "../commits";
+import {
+  GiteaRepoReleaseController,
+  IRepoReleaseController,
+} from "../releases/controller";
 
 export interface IRepoController extends IMainAccessor {
   owner: string;
@@ -28,9 +35,17 @@ export interface IRepoController extends IMainAccessor {
   issues: IRepoIssueController;
   files: IRepoFilesController;
   commits: IRepoCommitsController;
+  releases: IRepoReleaseController;
+
   getRepo(): Promise<Repository>;
   editRepo(opts: EditRepoOption): Promise<Repository>;
   setRepository(repository: Repository): IRepoController;
+  generateFromTemplate(
+    newName: string,
+    opts: GenerateRepoOption,
+    owner?: string,
+    repoName?: string
+  ): Promise<Repository>;
 }
 
 export class GiteaRepositoryController
@@ -48,6 +63,7 @@ export class GiteaRepositoryController
   issues: IRepoIssueController;
   files: IRepoFilesController;
   commits: IRepoCommitsController;
+  releases: IRepoReleaseController;
 
   constructor(main: IMainController, owner: string, name: string) {
     super(main);
@@ -61,11 +77,16 @@ export class GiteaRepositoryController
     this.issues = this.createIssueController();
     this.files = this.createFilesController();
     this.commits = this.createCommitsController();
+    this.releases = this.createReleaseController();
   }
 
   setRepository(repository: Repository) {
     this.repository = repository;
     return this;
+  }
+
+  protected createReleaseController() {
+    return new GiteaRepoReleaseController(this);
   }
 
   protected createCommitsController() {
@@ -128,12 +149,21 @@ export class GiteaRepositoryController
     return response.data;
   }
 
-  async generateFromRepoTemplate(
-    owner: string,
-    repoName: string,
-    opts: GenerateRepoOption
+  async generateFromTemplate(
+    newName: string,
+    opts: GenerateRepoOption,
+    owner = this.owner,
+    repoName = this.name
   ) {
-    const response = await this.api.repos.generateRepo(owner, repoName, opts);
+    const fullOpts = {
+      ...opts,
+      name: newName,
+    };
+    const response = await this.api.repos.generateRepo(
+      owner,
+      repoName,
+      fullOpts
+    );
     return response.data;
   }
 }

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GiteaRepositoryController } from "./repository";
+import { GiteaRepositoryController } from "./repository/controller";
 import { RepoAccessor } from "./repo-accesser";
 
 export interface PullRequest {

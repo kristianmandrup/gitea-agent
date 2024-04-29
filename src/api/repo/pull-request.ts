@@ -1,6 +1,9 @@
 import { RepoAccessor } from "./repo-accesser";
 import { ChangedFile, CreatePullRequestOption, PullRequest } from "gitea-js";
-import { GiteaRepositoryController, IRepoController } from "./repository";
+import {
+  GiteaRepositoryController,
+  IRepoController,
+} from "./repository/controller";
 import {
   GiteaPullRequestReviewController,
   IPullRequestReviewController,

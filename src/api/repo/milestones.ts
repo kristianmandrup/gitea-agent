@@ -5,7 +5,7 @@ import {
   Milestone,
 } from "gitea-js";
 import { RepoAccessor } from "./repo-accesser";
-import { IRepoController } from "./repository";
+import { IRepoController } from "./repository/controller";
 
 export interface IRepoIssueMilestoneController {
   setId(id: string): this;

@@ -1,22 +1,35 @@
-import { CreateReleaseOption, EditReleaseOption } from "gitea-js";
-import { RepoAccessor } from "./repo-accesser";
+import { CreateReleaseOption, EditReleaseOption, Release } from "gitea-js";
+import { RepoAccessor } from "../repo-accesser";
+
+export type ReleaseTypes = { draft?: boolean; prerelease?: boolean };
+
+export interface IRepoReleaseController {
+  list(releasTypes?: ReleaseTypes, opts?: any): Promise<Release[]>;
+  create(opts: CreateReleaseOption): Promise<any>;
+  getLatest(): Promise<Release>;
+  getByTag(tag: string): Promise<Release>;
+  deleteByTag(tag: string): Promise<any>;
+  getById(id: number): Promise<Release>;
+  deleteById(id: number): Promise<any>;
+  editById(id: number, opts: EditReleaseOption): Promise<any>;
+}
 
 export class GiteaRepoReleaseController extends RepoAccessor {
-  async list(draft: boolean, prerelease: boolean, opts: any) {
+  async list(releasTypes: ReleaseTypes = {}, opts: any = {}) {
     const response = await this.api.repos.repoListReleases(
       this.owner,
       this.repoName,
       {
         ...opts,
-        "pre-release": prerelease,
-        draft,
+        "pre-release": releasTypes.prerelease,
+        draft: releasTypes.draft,
       }
     );
     return response.data;
   }
 
   async create(opts: CreateReleaseOption) {
-    const response = await this.api.repos.repoCreatePullRequest(
+    const response = await this.api.repos.repoCreateRelease(
       this.owner,
       this.repoName,
       opts
@@ -25,7 +38,7 @@ export class GiteaRepoReleaseController extends RepoAccessor {
       ...this.repoData,
       ...opts,
     };
-    await this.notify("repo:pull_request", notification);
+    await this.notify("repo:release:create", notification);
     return response.data;
   }
 

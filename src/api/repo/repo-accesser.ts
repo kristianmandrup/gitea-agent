@@ -1,5 +1,5 @@
 import { IRepoNotifier, RepoNotifier } from "./notifier";
-import { IRepoController } from "./repository";
+import { IRepoController } from "./repository/controller";
 
 export class RepoAccessor {
   repo: IRepoController;

@@ -5,7 +5,7 @@ import {
   FilesResponse,
 } from "gitea-js";
 import { RepoAccessor } from "./repo-accesser";
-import { IRepoController } from "./repository";
+import { IRepoController } from "./repository/controller";
 
 export interface IRepoFilesController {
   changeFiles(
