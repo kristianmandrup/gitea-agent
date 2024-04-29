@@ -1,5 +1,5 @@
 import { MainActionHandler } from "./action-handler";
-import { Action, ActionHandler } from "./actions";
+import { Action, CompositeActionHandler } from "./actions";
 import { GiteaAdminController, IAdminController } from "./admin";
 import { GiteaApi, GiteaApiAccessor } from "./api";
 import { GiteaOrgController, IOrgController } from "./orgs";
@@ -23,7 +23,7 @@ export class GiteaMainController extends GiteaApiAccessor {
   orgs: IOrgController;
   teams: ITeamController;
   users: IUserController;
-  actionHandler: ActionHandler;
+  actionHandler: CompositeActionHandler;
 
   // repos
   owners: Record<string, RepoMap> = {};

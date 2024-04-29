@@ -74,8 +74,15 @@ The main infrastructure for actions has been implemented and a sample is availab
 
 A main `ActionHandler` for branches functionality is available with an `ActionHandlerRegistry` as `handlerRegistry: ActionHandlerRegistry` that is initialized with these action handlers.
 
-Each `ActionHandler` has an async `handle(action: Action)` method which takes an action, looks up a matching handler in the registry. If a handler is found, it calls the `handle(action)` method of that handle to handle it. The handler will have access to the main gitea controller that exposes the relevant Gitea API as methods that can be executed with the arguments of the action.
+Each `IActionHandler` has an async `handle(action: Action)` method which takes an action, looks up a matching handler in the registry. If a handler is found, it calls the `handle(action)` method of that handle to handle it. The handler will have access to the main gitea controller that exposes the relevant Gitea API as methods that can be executed with the arguments of the action.
 
-The main `ActionHandler` for branches has been integrated with an `ActionHandler` for repos which has in turn been registered with the root `ActionHandler` for the main controller.
+There are two types of implementations of `IActionHandler`:
 
-The `GiteaMainController` now exposes an async `handle` method which calls each of these handlers recursively down the tree, until a matching `LeafActionHandler` is found which can execute the action.
+- `LeafActionHandler` for a leaf node which handles and executes an action
+- `CompositeActionHandler` which contains registries of leaf and composite handlers
+
+Using composites, a tree hierarchy of `IActionHandler`s can easily be configured.
+
+The `BranchActionHandler` for branches has registered with the `RepoActionHandler` which has in turn been registered with the root `MainActionHandler` for the main controller.
+
+The `GiteaMainController` exposes an async `handle` method which delegates the action to each of these handlers registered, recursively down the tree, until a matching `LeafActionHandler` is found which executes the action.

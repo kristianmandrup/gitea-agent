@@ -1,10 +1,10 @@
-import { Action, ActionHandler } from "../../../actions";
+import { Action, CompositeActionHandler } from "../../../actions";
 import { IMainController } from "../../../main";
 
 export const buildCreateBranchHandler = (main: IMainController) =>
   new CreateBranchActionHandler(main);
 
-export class CreateBranchActionHandler extends ActionHandler {
+export class CreateBranchActionHandler extends CompositeActionHandler {
   name = "create_branch";
 
   async handle(action: Action) {
