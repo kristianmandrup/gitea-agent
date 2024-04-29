@@ -28,7 +28,13 @@ export class CompositeActionHandler extends LeafActionHandler {
   }
 
   get definitions(): any[] {
-    return [];
+    const leafDefinitions = this.leafHandlers.map(
+      (handler) => handler.definition
+    );
+    const compositeDefinitions = this.compositeHandlers.map(
+      (handler) => handler.definition
+    );
+    return [...leafDefinitions, ...compositeDefinitions];
   }
 
   isComposite(handler: IActionHandler) {
@@ -55,12 +61,50 @@ export class CompositeActionHandler extends LeafActionHandler {
     return true;
   }
 
+  removeLeaf(handler: IActionHandler) {
+    if (!this.isLeaf(handler)) {
+      return;
+    }
+    delete this.handlerRegistry[handler.name];
+    return true;
+  }
+
+  removeComposite(handler: IActionHandler) {
+    if (!this.isComposite(handler)) {
+      return;
+    }
+    delete this.compositeHandlerRegistry[handler.name];
+    return true;
+  }
+
   registerHandler(handler: IActionHandler) {
     this.registerComposite(handler) || this.registerLeaf(handler);
   }
 
+  removeHandler(handler: IActionHandler) {
+    this.removeComposite(handler) || this.removeLeaf(handler);
+  }
+
+  removeLeafByName(name: string) {
+    delete this.handlerRegistry[name];
+    return true;
+  }
+
+  removeCompositeByName(name: string) {
+    delete this.compositeHandlerRegistry[name];
+    return true;
+  }
+
+  removeHandlerByName(name: string) {
+    this.removeCompositeByName(name) || this.removeLeafByName(name);
+  }
+
   get compositeHandlers() {
     return Object.values(this.compositeHandlerRegistry);
+  }
+
+  get leafHandlers() {
+    return Object.values(this.handlerRegistry);
   }
 
   async handleComposites(action: Action) {

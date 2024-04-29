@@ -15,6 +15,10 @@ export class LeafActionHandler
     this.initialize();
   }
 
+  get definition(): any {
+    throw new Error("Missing definition");
+  }
+
   initialize() {}
 
   async handle(_action: Action) {

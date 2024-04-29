@@ -1,5 +1,5 @@
 import { MainActionHandler } from "./action-handler";
-import { Action, CompositeActionHandler } from "./actions";
+import { Action, CompositeActionHandler, IActionHandler } from "./actions";
 import { GiteaAdminController, IAdminController } from "./admin";
 import { GiteaApi, GiteaApiAccessor } from "./api";
 import { GiteaOrgController, IOrgController } from "./orgs";
@@ -41,6 +41,14 @@ export class GiteaMainController extends GiteaApiAccessor {
 
   async handle(action: Action) {
     return await this.actionHandler.handle(action);
+  }
+
+  get definitions() {
+    return this.actionHandler.definitions;
+  }
+
+  registerHandler(handler: IActionHandler) {
+    this.actionHandler.registerHandler(handler);
   }
 
   createActionHandler() {

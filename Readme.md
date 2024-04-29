@@ -86,3 +86,29 @@ Using composites, a tree hierarchy of `IActionHandler`s can easily be configured
 The `BranchActionHandler` for branches has registered with the `RepoActionHandler` which has in turn been registered with the root `MainActionHandler` for the main controller.
 
 The `GiteaMainController` exposes an async `handle` method which delegates the action to each of these handlers registered, recursively down the tree, until a matching `LeafActionHandler` is found which executes the action.
+
+To register a handler:
+
+```ts
+const myTeamHandler = new MyTeamActionHandler(main);
+main.registerHandler(myTeamHandler);
+```
+
+Remove handlers
+
+```ts
+main.removeHandler(myTeamHandler);
+main.removeHandlerByName('my_other_handler);
+```
+
+When handlers are registered, the action definitions of those handlers will be available as the `definitions` property on the composite handler and on the main controller.
+
+Each action definition is a JSON schema that defines the name of the actions and the available and required parameters that can be used for that action.
+
+```ts
+main.definitions; // => [
+// { name: "create_branch", properties: {...} }
+// ]
+```
+
+The definitions can be used to communicate available actions to an AI agent so it knows how to execute those actions by sending a JSON response conforming to the action definition.

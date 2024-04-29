@@ -8,5 +8,7 @@ export type ActionHandlerFactoryFn = (main: IMainController) => IActionHandler;
 export interface IActionHandler {
   name: string;
   type: ActionHandlerType;
+  definition: any;
+
   handle(action: Action): Promise<void>;
 }
