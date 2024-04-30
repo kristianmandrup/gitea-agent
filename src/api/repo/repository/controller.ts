@@ -1,4 +1,4 @@
-import { EditRepoOption, GenerateRepoOption, Repository } from "gitea-js";
+import { EditRepoOption, GenerateRepoOption, Repository, User } from "gitea-js";
 import {
   GiteaCollaboratorController,
   ICollaboratorController,
@@ -7,24 +7,34 @@ import { GiteaBranchController, IBranchController } from "../branch";
 import {
   GiteaPullRequestController,
   IPullRequestController,
-} from "../pull-request";
+} from "../pull-request/pull-controller";
 import {
   GiteaRepoTeamController,
   IRepoTeamController,
 } from "../team/controller";
 import { GiteaRepoTopicController, IRepoTopicController } from "../topic";
-import { GiteaRepoIssueController, IRepoIssueController } from "../issue";
+import {
+  GiteaRepoIssueController,
+  IRepoIssueController,
+} from "../issue/controller";
 import { IMainController } from "../../main";
 import { GiteaMainAccessor, IMainAccessor } from "../../main-accesser";
 import {
   GiteaRepoFilesController,
   IRepoFilesController,
 } from "../files/controller";
-import { GiteaRepoCommitsController, IRepoCommitsController } from "../commits";
+import {
+  GiteaRepoCommitsController,
+  IRepoCommitsController,
+} from "../commits/controller";
 import {
   GiteaRepoReleaseController,
   IRepoReleaseController,
 } from "../releases/controller";
+import {
+  GiteaRepoIssueMilestoneController,
+  IRepoIssueMilestoneController,
+} from "../milestone/controller";
 
 export interface IRepoController extends IMainAccessor {
   owner: string;
@@ -39,7 +49,10 @@ export interface IRepoController extends IMainAccessor {
   files: IRepoFilesController;
   commits: IRepoCommitsController;
   releases: IRepoReleaseController;
+  milestones: IRepoIssueMilestoneController;
 
+  getReviewers(): Promise<User[]>;
+  getAssignees(): Promise<User[]>;
   getRepo(): Promise<Repository>;
   editRepo(opts: EditRepoOption): Promise<Repository>;
   setRepository(repository: Repository): IRepoController;
@@ -67,6 +80,7 @@ export class GiteaRepositoryController
   files: IRepoFilesController;
   commits: IRepoCommitsController;
   releases: IRepoReleaseController;
+  milestones: IRepoIssueMilestoneController;
 
   constructor(main: IMainController, owner: string, name: string) {
     super(main);
@@ -81,11 +95,16 @@ export class GiteaRepositoryController
     this.files = this.createFilesController();
     this.commits = this.createCommitsController();
     this.releases = this.createReleaseController();
+    this.milestones = this.createMilestonesController();
   }
 
   setRepository(repository: Repository) {
     this.repository = repository;
     return this;
+  }
+
+  protected createMilestonesController() {
+    return new GiteaRepoIssueMilestoneController(this);
   }
 
   protected createReleaseController() {
@@ -141,6 +160,14 @@ export class GiteaRepositoryController
 
   async deleteRepo() {
     const response = await this.api.repos.repoDelete(this.owner, this.name);
+    return response.data;
+  }
+
+  async getAssignees() {
+    const response = await this.api.repos.repoGetAssignees(
+      this.owner,
+      this.name
+    );
     return response.data;
   }
 

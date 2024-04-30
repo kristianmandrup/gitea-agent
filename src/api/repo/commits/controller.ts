@@ -1,9 +1,9 @@
 import { Commit } from "gitea-js";
-import { RepoAccessor } from "./repo-accesser";
+import { RepoAccessor } from "../repo-accesser";
 
 export interface IRepoCommitsController {
   getSingle(sha: string): Promise<Commit>;
-  getAll(): Promise<Commit[]>;
+  getAll(query?: any): Promise<Commit[]>;
 }
 
 export class GiteaRepoCommitsController extends RepoAccessor {
@@ -15,11 +15,13 @@ export class GiteaRepoCommitsController extends RepoAccessor {
     );
     return response.data;
   }
-
-  async getAll() {
+  // sha: SHA or branch to start listing commits from
+  // filepath: filepath of a file/dir
+  async getAll(query?: any) {
     const response = await this.api.repos.repoGetAllCommits(
       this.owner,
-      this.repoName
+      this.repoName,
+      query
     );
     return response.data;
   }

@@ -30,23 +30,20 @@ main.addRepoController('myaccount', 'myreponame')
 main.repos[]
 ```
 
-The `repo` folder contains most of the key concepts to work with repositories, including:
+The `repo` controller contains the following
 
-- `commits`
-- `branches`
-- `issues`
-- `teams`
+- `commits` - done
+- `branches` - done
+- `teams` - done
+- `milestones` - done
+- `pullRequests` - done
+- `issues` - mostly done
 - `collaborators`
-- `pullRequests`
 - `topics`
 
-`issues` include
+The `pullRequests` controller includes:
 
-- `milestones`
-
-`pullRequests` include:
-
-- `reviews`
+- `reviews` reviews for a given PR
 
 ## Gitea API
 

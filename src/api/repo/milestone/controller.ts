@@ -4,16 +4,16 @@ import {
   Issue,
   Milestone,
 } from "gitea-js";
-import { RepoAccessor } from "./repo-accesser";
-import { IRepoController } from "./repository/controller";
+import { RepoAccessor } from "../repo-accesser";
+import { IRepoController } from "../repository/controller";
 
 export interface IRepoIssueMilestoneController {
   setId(id: string): this;
-  createMilestone(opts: CreateMilestoneOption): Promise<Milestone>;
-  listMilestones(query?: any): Promise<Milestone[]>;
-  getMilestone(id?: string): Promise<Milestone>;
-  deleteMilestone(id?: string): Promise<void>;
-  editMilestone(id: string, opts: EditMilestoneOption): Promise<Milestone>;
+  create(opts: CreateMilestoneOption): Promise<Milestone>;
+  list(query?: any): Promise<Milestone[]>;
+  getById(id?: string): Promise<Milestone>;
+  delete(id?: string): Promise<void>;
+  edit(id: string, opts: EditMilestoneOption): Promise<Milestone>;
 }
 
 export class GiteaRepoIssueMilestoneController extends RepoAccessor {
@@ -28,7 +28,7 @@ export class GiteaRepoIssueMilestoneController extends RepoAccessor {
     return this;
   }
 
-  async createMilestone(opts: CreateMilestoneOption) {
+  async create(opts: CreateMilestoneOption) {
     const response = await this.api.repos.issueCreateMilestone(
       this.owner,
       this.repoName,
@@ -42,7 +42,7 @@ export class GiteaRepoIssueMilestoneController extends RepoAccessor {
     return response.data;
   }
 
-  async listMilestones(query?: any) {
+  async list(query?: any) {
     const response = await this.api.repos.issueGetMilestonesList(
       this.owner,
       this.repoName,
@@ -51,7 +51,7 @@ export class GiteaRepoIssueMilestoneController extends RepoAccessor {
     return response.data;
   }
 
-  async getMilestone(id = this.id) {
+  async getById(id = this.id) {
     if (!id) {
       throw new Error("Missing id");
     }
@@ -63,7 +63,7 @@ export class GiteaRepoIssueMilestoneController extends RepoAccessor {
     return response.data;
   }
 
-  async deleteMilestone(id = this.id) {
+  async delete(id = this.id) {
     if (!id) {
       throw new Error("Missing id");
     }
@@ -80,7 +80,7 @@ export class GiteaRepoIssueMilestoneController extends RepoAccessor {
     return response.data;
   }
 
-  async editMilestone(id = this.id, opts: EditMilestoneOption) {
+  async edit(id = this.id, opts: EditMilestoneOption) {
     if (!id) {
       throw new Error("Missing id");
     }

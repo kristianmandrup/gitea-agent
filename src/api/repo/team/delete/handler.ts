@@ -3,9 +3,9 @@ import { IMainController } from "../../../main";
 import { deleteTeam } from "./definition";
 
 export const buildDeleteTeamHandler = (main: IMainController) =>
-  new CreateTeamActionHandler(main);
+  new DeleteTeamActionHandler(main);
 
-export class CreateTeamActionHandler extends CompositeActionHandler {
+export class DeleteTeamActionHandler extends CompositeActionHandler {
   name = "delete_team";
 
   async handle(action: Action) {

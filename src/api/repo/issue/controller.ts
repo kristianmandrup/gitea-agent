@@ -5,12 +5,12 @@ import {
   IssueTemplate,
   Comment,
 } from "gitea-js";
-import { RepoAccessor } from "./repo-accesser";
-import { IRepoController } from "./repository/controller";
+import { RepoAccessor } from "../repo-accesser";
+import { IRepoController } from "../repository/controller";
 import {
   GiteaRepoIssueMilestoneController,
   IRepoIssueMilestoneController,
-} from "./milestones";
+} from "../milestone/controller";
 
 export interface IRepoIssueController {
   list(): Promise<Issue[]>;
@@ -20,6 +20,7 @@ export interface IRepoIssueController {
   search(query: string, opts?: any): Promise<Issue[]>;
   repoGetIssueTemplates(): Promise<IssueTemplate[]>;
   getById(id: number): Promise<Issue>;
+  delete(id: number): Promise<void>;
   listBlockedByIssue(id: string): Promise<Issue[]>;
   createBlockingIssue(id: string, opts: IssueMeta): Promise<Issue>;
   removeBlockingIssue(id: string, opts: IssueMeta): Promise<Issue>;
@@ -27,15 +28,9 @@ export interface IRepoIssueController {
 
 export class GiteaRepoIssueController extends RepoAccessor {
   issue?: Issue;
-  milestones: IRepoIssueMilestoneController;
 
   constructor(repo: IRepoController) {
     super(repo);
-    this.milestones = this.createIssueMilestoneController();
-  }
-
-  protected createIssueMilestoneController() {
-    return new GiteaRepoIssueMilestoneController(this.repo);
   }
 
   get index() {
@@ -110,6 +105,15 @@ export class GiteaRepoIssueController extends RepoAccessor {
     const response = await this.api.repos.repoGetIssueTemplates(
       this.owner,
       this.repoName
+    );
+    return response.data;
+  }
+
+  async delete(id: number) {
+    const response = await this.api.repos.issueDelete(
+      this.owner,
+      this.repoName,
+      id
     );
     return response.data;
   }

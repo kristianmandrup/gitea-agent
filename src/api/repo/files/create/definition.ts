@@ -6,7 +6,7 @@ export const createFile = {
     properties: {
       filepath: {
         type: "string",
-        description: "File path",
+        description: "File path of the file",
       },
       content: {
         type: "string",
@@ -25,6 +25,6 @@ export const createFile = {
         description: "Author of the file",
       },
     },
+    required: ["filepath"],
   },
-  required: ["name"],
 };
