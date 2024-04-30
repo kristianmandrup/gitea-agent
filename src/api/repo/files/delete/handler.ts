@@ -1,0 +1,24 @@
+import { Action, CompositeActionHandler } from "../../../actions";
+import { IMainController } from "../../../main";
+import { deleteFile } from "./definition";
+
+export const buildDeleteFileHandler = (main: IMainController) =>
+  new DeleteFileActionHandler(main);
+
+export class DeleteFileActionHandler extends CompositeActionHandler {
+  name = "delete_release";
+
+  async handle(action: Action) {
+    if (!action.fnArgs.filepath) {
+      throw new Error("Missing filepath");
+    }
+    const { filepath, sha, message, branch, author } = action.fnArgs;
+    const opts = { message, branch, author, sha };
+    const data = await this.main.repos.files.delete(filepath, sha, opts);
+    console.log({ data });
+  }
+
+  get definition(): any {
+    return deleteFile;
+  }
+}

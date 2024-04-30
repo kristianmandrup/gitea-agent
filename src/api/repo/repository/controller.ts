@@ -16,7 +16,10 @@ import { GiteaRepoTopicController, IRepoTopicController } from "../topic";
 import { GiteaRepoIssueController, IRepoIssueController } from "../issue";
 import { IMainController } from "../../main";
 import { GiteaMainAccessor, IMainAccessor } from "../../main-accesser";
-import { GiteaRepoFilesController, IRepoFilesController } from "../files";
+import {
+  GiteaRepoFilesController,
+  IRepoFilesController,
+} from "../files/controller";
 import { GiteaRepoCommitsController, IRepoCommitsController } from "../commits";
 import {
   GiteaRepoReleaseController,
