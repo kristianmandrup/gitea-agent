@@ -37,13 +37,13 @@ The `repo` controller contains the following
 - `teams` - done
 - `milestones` - done
 - `pullRequests` - done
-- `issues` - mostly done
+- `issues` - partly done
 - `collaborators`
 - `topics`
 
 The `pullRequests` controller includes:
 
-- `reviews` reviews for a given PR
+- `reviews` reviews for a given PR - partly done
 
 ## Gitea API
 

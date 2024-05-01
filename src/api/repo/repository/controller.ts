@@ -7,7 +7,7 @@ import { GiteaBranchController, IBranchController } from "../branch";
 import {
   GiteaPullRequestController,
   IPullRequestController,
-} from "../pull-request/pull-controller";
+} from "../pull-request/controller";
 import {
   GiteaRepoTeamController,
   IRepoTeamController,
@@ -35,6 +35,10 @@ import {
   GiteaRepoIssueMilestoneController,
   IRepoIssueMilestoneController,
 } from "../milestone/controller";
+import {
+  GiteaRepoWikiPageController,
+  IWikiPageController,
+} from "../wiki/controller";
 
 export interface IRepoController extends IMainAccessor {
   owner: string;
@@ -50,6 +54,7 @@ export interface IRepoController extends IMainAccessor {
   commits: IRepoCommitsController;
   releases: IRepoReleaseController;
   milestones: IRepoIssueMilestoneController;
+  wikis: IWikiPageController;
 
   getReviewers(): Promise<User[]>;
   getAssignees(): Promise<User[]>;
@@ -81,6 +86,7 @@ export class GiteaRepositoryController
   commits: IRepoCommitsController;
   releases: IRepoReleaseController;
   milestones: IRepoIssueMilestoneController;
+  wikis: IWikiPageController;
 
   constructor(main: IMainController, owner: string, name: string) {
     super(main);
@@ -96,11 +102,16 @@ export class GiteaRepositoryController
     this.commits = this.createCommitsController();
     this.releases = this.createReleaseController();
     this.milestones = this.createMilestonesController();
+    this.wikis = this.createWikiController();
   }
 
-  setRepository(repository: Repository) {
+  public setRepository(repository: Repository) {
     this.repository = repository;
     return this;
+  }
+
+  protected createWikiController() {
+    return new GiteaRepoWikiPageController(this);
   }
 
   protected createMilestonesController() {

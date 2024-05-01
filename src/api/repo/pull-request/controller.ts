@@ -11,7 +11,7 @@ import { IRepoController } from "../repository/controller";
 import {
   GiteaPullRequestReviewController,
   IPullRequestReviewController,
-} from "../pr-review";
+} from "./pr-reviews/controller";
 
 export type MergePullRequestOpts = {
   MergeCommitID?: string;
@@ -32,6 +32,7 @@ export type MergeType =
 //  | "manually-merged";
 
 export interface IPullRequestController {
+  reviews: IPullRequestReviewController;
   create(opts?: CreatePullRequestOption): Promise<any>;
   update(style?: MergeStyle, index?: number): Promise<PullRequest>;
   delete(index: number): Promise<void>;

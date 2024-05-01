@@ -4,6 +4,7 @@ import {
   IssueMeta,
   IssueTemplate,
   Comment,
+  EditIssueOption,
 } from "gitea-js";
 import { RepoAccessor } from "../repo-accesser";
 import { IRepoController } from "../repository/controller";
@@ -15,6 +16,8 @@ import {
 export interface IRepoIssueController {
   list(): Promise<Issue[]>;
   create(title: string, body: string, opts: CreateIssueOption): Promise<Issue>;
+  edit(opts: EditIssueOption, index?: number): Promise<Issue>;
+  changeState(state: string, index?: number): Promise<Issue>;
   addComment(body: string, index?: number): Promise<Comment>;
   getComments(id: number): Promise<Comment[]>;
   search(query: string, opts?: any): Promise<Issue[]>;
@@ -62,6 +65,42 @@ export class GiteaRepoIssueController extends RepoAccessor {
       title,
     };
     await this.notify("issue:create", notification);
+    return response.data;
+  }
+
+  async changeState(state: string, index = this.index) {
+    if (!index) {
+      throw new Error(`Issue is missing or has no index`);
+    }
+    const response = await this.api.repos.issueEditIssue(
+      this.owner,
+      this.repoName,
+      index,
+      { state }
+    );
+    const notification = {
+      ...this.repoData,
+      state,
+    };
+    await this.notify("issue:state:change", notification);
+    return response.data;
+  }
+
+  async edit(opts: EditIssueOption, index = this.index) {
+    if (!index) {
+      throw new Error(`Issue is missing or has no index`);
+    }
+    const response = await this.api.repos.issueEditIssue(
+      this.owner,
+      this.repoName,
+      index,
+      opts
+    );
+    const notification = {
+      ...this.repoData,
+      ...opts,
+    };
+    await this.notify("issue:edit", notification);
     return response.data;
   }
 

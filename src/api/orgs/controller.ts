@@ -5,7 +5,6 @@ import {
   Team,
   User,
 } from "gitea-js";
-import { GiteaApiAccessor } from "../api";
 import { GiteaMainAccessor } from "../main-accesser";
 import { IMainController } from "../main";
 

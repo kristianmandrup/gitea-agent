@@ -3,35 +3,84 @@ import {
   DismissPullReviewOptions,
   PullRequest,
   PullReview,
+  PullReviewComment,
   PullReviewRequestOptions,
   SubmitPullReviewOptions,
 } from "gitea-js";
-import { RepoAccessor } from "./repo-accesser";
-import { IRepoController } from "./repository/controller";
+import { IRepoAccessor, RepoAccessor } from "../../repo-accesser";
+import { IRepoController } from "../../repository/controller";
+import {
+  GiteaReviewRequestController,
+  IReviewRequestController,
+} from "./requests/controller";
 
-export interface IPullRequestReviewController {
-  createPullReviewRequests(
-    opts: PullReviewRequestOptions
-  ): Promise<PullReview[]>;
-  createPullRequestReview(opts: CreatePullReviewOptions): Promise<PullReview>;
+export interface IPullRequestReviewController extends IRepoAccessor {
+  pr?: PullRequest;
+  id?: number;
+  create(opts: CreatePullReviewOptions): Promise<PullReview>;
+  delete(id: number, index?: number): Promise<any>;
+  list(index?: number): Promise<PullReview[]>;
+  getById(id: number, index?: number): Promise<PullReview>;
+  getComments(id: number, index?: number): Promise<PullReviewComment[]>;
+  submitPending(
+    id: number,
+    opts: SubmitPullReviewOptions,
+    index?: number
+  ): Promise<any>;
+  dismiss(
+    id: number,
+    body: DismissPullReviewOptions,
+    index?: number
+  ): Promise<any>;
+  setPullRequestId(id: number): void;
+  setPullRequest(pr: PullRequest): void;
+  requests: IReviewRequestController;
 }
 
-export class GiteaPullRequestReviewController extends RepoAccessor {
+export class GiteaPullRequestReviewController
+  extends RepoAccessor
+  implements IPullRequestReviewController
+{
   pr?: PullRequest;
+  id?: number;
+  requests: IReviewRequestController;
 
   constructor(repo: IRepoController) {
     super(repo);
+    this.requests = this.createReviewRequestController();
+  }
+
+  protected createReviewRequestController() {
+    return new GiteaReviewRequestController(this);
   }
 
   get index() {
-    return this.pr?.id;
+    return this.pr?.id || this.id;
   }
 
   setPullRequest(pr: PullRequest) {
     this.pr = pr;
   }
 
-  async listPullReviews(id: number, index = this.index) {
+  setPullRequestId(id: number) {
+    this.id = id;
+  }
+
+  async create(opts: CreatePullReviewOptions) {
+    if (!this.index) {
+      throw new Error(`PR is missing or has no index`);
+    }
+
+    const response = await this.api.repos.repoCreatePullReview(
+      this.owner,
+      this.repoName,
+      this.index,
+      opts
+    );
+    return response.data;
+  }
+
+  async list(index = this.index) {
     if (!index) {
       throw new Error(`PR is missing or has no index`);
     }
@@ -43,7 +92,7 @@ export class GiteaPullRequestReviewController extends RepoAccessor {
     return response.data;
   }
 
-  async getPullReview(id: number, index = this.index) {
+  async getById(id: number, index = this.index) {
     if (!index) {
       throw new Error(`PR is missing or has no index`);
     }
@@ -56,7 +105,7 @@ export class GiteaPullRequestReviewController extends RepoAccessor {
     return response.data;
   }
 
-  async deletePullReview(id: number, index = this.index) {
+  async delete(reviewId: number, index = this.index) {
     if (!index) {
       throw new Error(`PR is missing or has no index`);
     }
@@ -64,12 +113,12 @@ export class GiteaPullRequestReviewController extends RepoAccessor {
       this.owner,
       this.repoName,
       index,
-      id
+      reviewId
     );
     return response.data;
   }
 
-  async getPullReviewComments(id: number, index = this.index) {
+  async getComments(id: number, index = this.index) {
     if (!index) {
       throw new Error(`PR is missing or has no index`);
     }
@@ -83,9 +132,9 @@ export class GiteaPullRequestReviewController extends RepoAccessor {
   }
 
   // Submit a pending review to an pull request
-  async submitPendingPullReview(
+  async submitPending(
     id: number,
-    body: SubmitPullReviewOptions,
+    opts: SubmitPullReviewOptions,
     index = this.index
   ) {
     if (!index) {
@@ -96,21 +145,21 @@ export class GiteaPullRequestReviewController extends RepoAccessor {
       this.repoName,
       index,
       id,
-      body
+      opts
     );
     const notification = {
       ...this.repoData,
       index,
       id,
-      body,
+      opts,
     };
     await this.notify("repo:pull_review:submit:pending", notification);
     return response.data;
   }
 
-  async dismissPullReview(
+  async dismiss(
     id: number,
-    body: DismissPullReviewOptions,
+    opts: DismissPullReviewOptions,
     index = this.index
   ) {
     if (!index) {
@@ -121,42 +170,15 @@ export class GiteaPullRequestReviewController extends RepoAccessor {
       this.repoName,
       index,
       id,
-      body
+      opts
     );
     const notification = {
       ...this.repoData,
       index,
       id,
-      body,
+      opts,
     };
     await this.notify("repo:pull_review:dismiss", notification);
-    return response.data;
-  }
-
-  async createPullReviewRequests(opts: PullReviewRequestOptions) {
-    if (!this.index) {
-      throw new Error(`PR is missing or has no index`);
-    }
-    const response = await this.api.repos.repoCreatePullReviewRequests(
-      this.owner,
-      this.repoName,
-      this.index,
-      opts
-    );
-    return response.data;
-  }
-
-  async createPullRequestReview(opts: CreatePullReviewOptions) {
-    if (!this.index) {
-      throw new Error(`PR is missing or has no index`);
-    }
-
-    const response = await this.api.repos.repoCreatePullReview(
-      this.owner,
-      this.repoName,
-      this.index,
-      opts
-    );
     return response.data;
   }
 }

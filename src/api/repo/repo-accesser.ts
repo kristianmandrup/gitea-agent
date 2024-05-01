@@ -1,7 +1,12 @@
 import { IRepoNotifier, RepoNotifier } from "./notifier";
 import { IRepoController } from "./repository/controller";
 
-export class RepoAccessor {
+export interface IRepoAccessor {
+  repo: IRepoController;
+  notifier: IRepoNotifier;
+}
+
+export class RepoAccessor implements IRepoAccessor {
   repo: IRepoController;
   notifier: IRepoNotifier;
 
