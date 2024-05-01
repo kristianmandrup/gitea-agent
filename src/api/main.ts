@@ -14,6 +14,8 @@ export interface IMainController {
   teams: ITeamController;
   users: IUserController;
   repos: IRepoController;
+
+  handle(action: Action): Promise<void>;
 }
 
 export type RepoMap = Record<string, IRepoController>;
