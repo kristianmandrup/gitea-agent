@@ -19,19 +19,24 @@ export class RepoNotifier implements IRepoNotifier {
     return new OpenAIAdapter();
   }
 
-  parseAction(action: any) {
-    if (action.target !== "gitea") return;
-    this.main.handle(action);
+  isGiteaAction(action: any) {
+    if (!this.isAction(action)) return;
+    return action.target !== "gitea";
   }
 
   isAction(obj: any) {
     return obj.type === "action";
   }
 
+  handleAction(action: any) {
+    if (!this.isGiteaAction(action)) return;
+    this.main.handle(action);
+  }
+
   handleResponse(aiResponse: string) {
     try {
-      const obj = JSON.parse(aiResponse);
-      this.isAction(obj) && this.parseAction(obj);
+      const action = JSON.parse(aiResponse);
+      this.handleAction(action);
     } catch (error) {
       console.log("Not a gitea action");
     }

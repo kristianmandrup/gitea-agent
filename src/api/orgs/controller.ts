@@ -8,30 +8,37 @@ import {
 import { GiteaMainAccessor } from "../main-accesser";
 import { IMainController } from "../main";
 import { IOrgTeamController, OrgTeamController } from "./teams/controller";
+import {
+  IOrganizationMemberController,
+  OrgMemberController,
+} from "./members/controller";
 
 export interface IOrgController {
   organization?: Organization;
   username?: string;
   teams: IOrgTeamController;
+  members: IOrganizationMemberController;
   setOrganization(organization: Organization): IOrgController;
   create(username: string, opts: CreateOrgOption): Promise<Organization>;
   getByName(name: string): Promise<Organization>;
   delete(name: string): Promise<any>;
-  // getTeam(teamId: number): Promise<Team>;
-  // listMembers(): Promise<User[]>;
-  // createTeam(teamName: string, opts?: CreateTeamOption): Promise<Team>;
-  // listTeams(): Promise<Team[]>;
 }
 
 export abstract class OrgAccessor extends GiteaMainAccessor {
   organization?: Organization;
   username?: string;
   teams: IOrgTeamController;
+  members: IOrganizationMemberController;
 
   constructor(main: IMainController, organization?: Organization) {
     super(main);
     this.organization = organization;
     this.teams = this.createTeamController();
+    this.members = this.createMembersController();
+  }
+
+  protected createMembersController() {
+    return new OrgMemberController(this.main);
   }
 
   protected createTeamController() {

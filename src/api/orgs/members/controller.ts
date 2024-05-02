@@ -1,6 +1,12 @@
+import { User } from "gitea-js";
 import { OrgAccessor } from "../controller";
 
-export class MemberController extends OrgAccessor {
+export interface IOrganizationMemberController {
+  delete(username?: string): Promise<void>;
+  isMember(username?: string): Promise<void>;
+  list(): Promise<User[]>;
+}
+export class OrgMemberController extends OrgAccessor {
   async delete(username = this.username) {
     if (!username) {
       throw new Error("Missing username");

@@ -3,24 +3,24 @@ import { GiteaApiAccessor } from "../api";
 import { GiteaMainController, IMainController } from "../main";
 import { GiteaMainAccessor } from "../main-accesser";
 
-export interface IUserController {
-  createUserToken(
-    username: string,
-    opts: CreateAccessTokenOption
-  ): Promise<AccessToken>;
-}
+export interface IUserController {}
 
 export class GiteaUserController
   extends GiteaMainAccessor
   implements IUserController
 {
-  async createUserToken(username: string, opts: CreateAccessTokenOption) {
-    const response = await this.api.users.userCreateToken(username, opts);
+  async listKeys(username: string) {
+    const response = await this.api.users.userListKeys(username);
     return response.data;
   }
 
-  // userDeleteAccessToken: (username: string, token: string
-  // userListTeams
-  // userGet: (username: string
-  // userListRepos: (username: string
+  async listRepos(username: string) {
+    const response = await this.api.users.userListRepos(username);
+    return response.data;
+  }
+
+  async getByName(username: string) {
+    const response = await this.api.users.userGet(username);
+    return response.data;
+  }
 }

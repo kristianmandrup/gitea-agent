@@ -15,30 +15,35 @@ See [Gitea](https://github.com/go-gitea/gitea)
 
 The various controllers are all exported from the main `index.ts` file in the `src` folder.
 
-The `GiteaMainController` is the `main` controller that acts as a hub for all the other primary controllers
+The `GiteaMainController` is the `main` controller that acts as a hub (and root) for all the other primary controllers
 
 - `admin` done
-- `orgs` partly done
+- `orgs` mostly done
 - `repo` mostly done
-- `teams` partly done
+- `teams` mostly done
 - `users` todo
 
-The `repo` controller contains the following
+The `teams` controller contains:
+
+- `members`
+- `repos`
+
+The root `repo` controller contains:
 
 - `commits` - done
 - `branches` - done
 - `teams` - done
 - `milestones` - done
 - `pullRequests` - done
-- `issues` - partly done
+- `issues` - mostly done
 - `collaborators` done
 - `topics` todo
 
-The `pullRequests` controller includes:
+The `pullRequests` controller contains:
 
 - `reviews` reviews for a given PR - partly done
 
-The `reviews` controller includes:
+The `reviews` controller contains:
 
 - `comments` comment actions on reviews
 
@@ -109,10 +114,42 @@ The definitions can be used to communicate available actions to an AI agent so i
 
 ## AI notifications
 
-As a result of executing an action, the controller or action handler can notify the result of the action via the registered `notifier`. A sample `RepoNotifier` is made available, which notifies an `AIAdapter`, such as the `OpenAIAdapter` which communicats the notification to an OpenAI model via the OpenAI API.
+As a result of executing an action, the controller or action handler can notify the result of the action via the registered `notifier`. A sample `RepoNotifier` is made available, which has a method `notify` that notifies an `AIAdapter`, such as the `OpenAIAdapter`.
+This lets the gitea agent communicate the notification to an OpenAI model via the OpenAI API.
+The same goes for errors, using `notifyError` to notify the AI about any action error.
+
+```ts
+  async notifyError(label: string, data: any) {
+    await this.notify(`ERROR:${label}`, data);
+  }
+
+  async notify(label: string, data: any) {
+    const message = JSON.stringify(label, data);
+    const aiResponses = await this.aiAdapter.notifyAi(message);
+    for (const response of aiResponses) {
+      this.handleResponse(response);
+    }
+  }
+```
 
 ## Handling AI responses
 
 The notifier can be set up to received AI responses to the notification, which may include new actions to be handled by the Gitea main controller.
 
 The `OpenAIAdapter` includes support for HTTP Request/Response, whereas `OpenAIStreamAdapter` works with the OpenAI streaming API, which streams response via SSE events, that are processed and each sent to be handled by the controller as they are received.
+
+```ts
+  handleAction(action: any) {
+    if (!this.isGiteaAction(action)) return;
+    this.main.handle(action);
+  }
+
+  handleResponse(aiResponse: string) {
+    try {
+      const action = JSON.parse(aiResponse);
+      this.handleAction(action);
+    } catch (error) {
+      console.log("Not a gitea action");
+    }
+  }
+```

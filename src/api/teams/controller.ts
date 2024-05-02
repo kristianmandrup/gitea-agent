@@ -1,13 +1,24 @@
 import { EditTeamOption, Repository, Team } from "gitea-js";
 import { GiteaMainAccessor } from "../main-accesser";
 import { IMainController } from "../main";
+import {
+  GiteaTeamMemberController,
+  ITeamMemberController,
+} from "./members/controller";
+import {
+  GiteaTeamReposController,
+  ITeamReposController,
+} from "./repos/controller";
 
 export interface ITeamController {
   team?: Team;
   teamId?: number;
+  members: ITeamMemberController;
+  repos: ITeamReposController;
   setTeam(team: Team): this;
   setId(teamId: number): this;
-  delete(): Promise<void>;
+  edit(teamName: string, opts: EditTeamOption, teamId?: number): Promise<Team>;
+  delete(id?: number): Promise<void>;
   deleteMember(username: string): Promise<any>;
   addMember(username: string): Promise<any>;
   listRepos(): Promise<Repository[]>;
@@ -21,10 +32,22 @@ export class GiteaTeamController
 {
   team?: Team;
   teamId?: number;
+  members: ITeamMemberController;
+  repos: ITeamReposController;
 
   constructor(main: IMainController, team?: Team) {
     super(main);
     this.team = team;
+    this.members = this.createTeamMemberController();
+    this.repos = this.createTeamRepoController();
+  }
+
+  protected createTeamRepoController() {
+    return new GiteaTeamReposController(this.main);
+  }
+
+  protected createTeamMemberController() {
+    return new GiteaTeamMemberController(this.main);
   }
 
   get id() {
@@ -53,11 +76,11 @@ export class GiteaTeamController
     return response.data;
   }
 
-  async delete() {
-    if (!this.id) {
+  async delete(id = this.id) {
+    if (!id) {
       throw new Error("Team is missing id");
     }
-    const response = await this.api.teams.orgDeleteTeam(this.id);
+    const response = await this.api.teams.orgDeleteTeam(id);
     return response.data;
   }
 
