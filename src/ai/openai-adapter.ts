@@ -3,7 +3,7 @@ import { ChatMessage, Role } from "openai-fetch/dist/types";
 import { ChatCompletion } from "openai-fetch/openai-types/resources";
 
 export interface IAIAdapter {
-  notifyAi(message: string): Promise<string>;
+  notifyAi(message: string): Promise<string[]>;
 }
 
 // Generate a single chat completion
@@ -26,7 +26,7 @@ export class OpenAIAdapter implements IAIAdapter {
 
   async notifyAi(message: string) {
     this.addToolMessage(message);
-    return await this.getChatCompletion(this.messages);
+    return await this.getChatCompletion();
   }
 
   async getAIResponse() {
@@ -36,17 +36,19 @@ export class OpenAIAdapter implements IAIAdapter {
     });
   }
 
-  parseResponseContent(completion: ChatCompletion) {
+  parseResponseContent(completion: ChatCompletion): string[] {
     const { choices } = completion;
-    const choice = choices[0];
-    return choice.message.content ? choice.message.content : undefined;
+    return choices.map((c) => this.getContent(c)).filter((c) => c !== "");
   }
 
-  async getChatCompletion(messages: ChatMessage[]): Promise<string> {
+  getContent(choice: ChatCompletion.Choice) {
+    return choice.message.content ? choice.message.content : "";
+  }
+
+  async getChatCompletion(): Promise<string[]> {
     const response = await this.getAIResponse();
-    const content = this.parseResponseContent(response);
-    const sysMessage = `${content}`;
-    this.addSystemMessage(sysMessage);
-    return sysMessage;
+    const contentList = this.parseResponseContent(response);
+    contentList.forEach((content) => this.addSystemMessage(content));
+    return contentList;
   }
 }

@@ -1,7 +1,9 @@
+import { IMainController } from "../main";
 import { IRepoNotifier, RepoNotifier } from "./notifier";
 import { IRepoController } from "./repository/controller";
 
 export interface IRepoAccessor {
+  main: IMainController;
   repo: IRepoController;
   notifier: IRepoNotifier;
 }
@@ -15,12 +17,20 @@ export class RepoAccessor implements IRepoAccessor {
     this.notifier = opts.notifier || this.createNotifier();
   }
 
+  get main() {
+    return this.repo.main;
+  }
+
   async notify(label: string, data: any) {
     await this.notifier.notify(label, data);
   }
 
+  async notifyError(label: string, data: any) {
+    await this.notifier.notifyError(label, data);
+  }
+
   createNotifier() {
-    return new RepoNotifier();
+    return new RepoNotifier(this.main);
   }
 
   get api() {

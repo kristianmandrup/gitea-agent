@@ -17,6 +17,7 @@
     "axios": "^1.6.8",
     "cross-fetch": "^4.0.0",
     "gitea-js": "^1.21.2",
+    "openai": "^4.40.0",
     "openai-fetch": "^2.0.2"
   }
 }

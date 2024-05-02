@@ -3,6 +3,7 @@ import { GiteaApi } from "./api";
 import { IMainController } from "./main";
 
 export interface IMainAccessor {
+  main: IMainController;
   gitea: GiteaApi;
   api: Api<unknown>;
 }

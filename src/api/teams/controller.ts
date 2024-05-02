@@ -1,16 +1,18 @@
-import { Repository, Team } from "gitea-js";
+import { EditTeamOption, Repository, Team } from "gitea-js";
 import { GiteaMainAccessor } from "../main-accesser";
 import { IMainController } from "../main";
 
 export interface ITeamController {
   team?: Team;
+  teamId?: number;
   setTeam(team: Team): this;
-  deleteTeam(): Promise<void>;
-  deleteTeamMember(username: string): Promise<any>;
-  addTeamMember(username: string): Promise<any>;
-  getTeamRepos(): Promise<Repository[]>;
-  getTeam(id: number): Promise<Team>;
-  listTeamMembers(): Promise<any[]>;
+  setId(teamId: number): this;
+  delete(): Promise<void>;
+  deleteMember(username: string): Promise<any>;
+  addMember(username: string): Promise<any>;
+  listRepos(): Promise<Repository[]>;
+  getById(id: number): Promise<Team>;
+  listMembers(): Promise<any[]>;
 }
 
 export class GiteaTeamController
@@ -18,6 +20,7 @@ export class GiteaTeamController
   implements ITeamController
 {
   team?: Team;
+  teamId?: number;
 
   constructor(main: IMainController, team?: Team) {
     super(main);
@@ -25,7 +28,7 @@ export class GiteaTeamController
   }
 
   get id() {
-    return this.team?.id;
+    return this.team?.id || this.teamId;
   }
 
   setTeam(team: Team) {
@@ -33,7 +36,24 @@ export class GiteaTeamController
     return this;
   }
 
-  async deleteTeam() {
+  setId(teamId: number) {
+    this.teamId = teamId;
+    return this;
+  }
+
+  async edit(teamName: string, opts: EditTeamOption, teamId = this.team?.id) {
+    if (!teamId) {
+      throw new Error("Missing team id");
+    }
+    const fullOpts = {
+      ...(opts || {}),
+      name: teamName,
+    };
+    const response = await this.api.teams.orgEditTeam(teamId, fullOpts);
+    return response.data;
+  }
+
+  async delete() {
     if (!this.id) {
       throw new Error("Team is missing id");
     }
@@ -41,7 +61,7 @@ export class GiteaTeamController
     return response.data;
   }
 
-  async deleteTeamMember(username: string) {
+  async deleteMember(username: string) {
     if (!this.id) {
       throw new Error("Team is missing id");
     }
@@ -52,7 +72,7 @@ export class GiteaTeamController
     return response.data;
   }
 
-  async addTeamMember(username: string) {
+  async addMember(username: string) {
     if (!this.id) {
       throw new Error("Team is missing id");
     }
@@ -60,7 +80,7 @@ export class GiteaTeamController
     return response.data;
   }
 
-  async getTeamRepos() {
+  async listRepos() {
     if (!this.id) {
       throw new Error("Team is missing id");
     }
@@ -68,12 +88,12 @@ export class GiteaTeamController
     return response.data;
   }
 
-  async getTeam(id: number) {
+  async getById(id: number) {
     const response = await this.api.teams.orgGetTeam(id);
     return response.data;
   }
 
-  async listTeamMembers() {
+  async listMembers() {
     if (!this.id) {
       throw new Error("Team is missing id");
     }

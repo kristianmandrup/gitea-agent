@@ -20,8 +20,9 @@ export interface IOrgController {
   listTeams(): Promise<Team[]>;
 }
 
-export class GiteaOrgController extends GiteaMainAccessor {
+export abstract class OrgAccessor extends GiteaMainAccessor {
   organization?: Organization;
+  username?: string;
 
   constructor(main: IMainController, organization?: Organization) {
     super(main);
@@ -41,6 +42,13 @@ export class GiteaOrgController extends GiteaMainAccessor {
     return this;
   }
 
+  setUsername(username: string) {
+    this.username = username;
+    return this;
+  }
+}
+
+export class GiteaOrgController extends OrgAccessor {
   async createOrganization(username: string, opts: CreateOrgOption) {
     const fullOpts = {
       ...opts,
@@ -52,8 +60,6 @@ export class GiteaOrgController extends GiteaMainAccessor {
 
   // orgGet: (org: string
   // orgDelete: (org: string
-  // orgIsMember: (org: string, username: string
-  // orgDeleteMember: (org: string, username: string
   // orgAddTeamMember: (id: number, username: string
   // orgRemoveTeamMember: (id: number, username: string
   // orgListRepos: (org: string, query?
@@ -61,39 +67,4 @@ export class GiteaOrgController extends GiteaMainAccessor {
   // orgListTeamRepo: (id: number, org: string, repo: string
   // orgAddTeamRepository: (id: number, org: string, repo: string
   // orgRemoveTeamRepository: (id: number, org: string, repo: string
-
-  // teamSearch: (org: string, query?
-
-  async getTeam(teamId: number) {
-    const response = await this.api.teams.orgGetTeam(teamId);
-    return response.data;
-  }
-
-  async listMembers() {
-    if (!this.name) {
-      throw new Error("Missing organization name");
-    }
-    const response = await this.api.orgs.orgListMembers(this.name);
-    return response.data;
-  }
-
-  async createTeam(teamName: string, opts?: CreateTeamOption) {
-    if (!this.name) {
-      throw new Error("Missing organization name");
-    }
-    const fullOpts = {
-      ...(opts || {}),
-      name: teamName,
-    };
-    const response = await this.api.orgs.orgCreateTeam(this.name, fullOpts);
-    return response.data;
-  }
-
-  async listTeams() {
-    if (!this.name) {
-      throw new Error("Missing organization name");
-    }
-    const response = await this.api.orgs.orgListTeams(this.name);
-    return response.data;
-  }
 }

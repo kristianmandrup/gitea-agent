@@ -1,0 +1,7 @@
+    const { keyId, username } = action.fnArgs;
+    if (!keyId) {
+      throw new Error("Missing keyId");
+    }
+    if (!username) {
+      throw new Error("Missing username");
+    }

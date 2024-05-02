@@ -12,8 +12,13 @@ import {
   GiteaRepoIssueMilestoneController,
   IRepoIssueMilestoneController,
 } from "../milestone/controller";
+import {
+  GiteaRepoIssueCommentController,
+  IRepoIssueCommentController,
+} from "./comments";
 
 export interface IRepoIssueController {
+  comments: IRepoIssueCommentController;
   list(): Promise<Issue[]>;
   create(title: string, body: string, opts: CreateIssueOption): Promise<Issue>;
   edit(opts: EditIssueOption, index?: number): Promise<Issue>;
@@ -31,9 +36,15 @@ export interface IRepoIssueController {
 
 export class GiteaRepoIssueController extends RepoAccessor {
   issue?: Issue;
+  comments: IRepoIssueCommentController;
 
   constructor(repo: IRepoController) {
     super(repo);
+    this.comments = this.createIssueCommentController();
+  }
+
+  createIssueCommentController() {
+    return new GiteaRepoIssueCommentController(this.repo);
   }
 
   get index() {

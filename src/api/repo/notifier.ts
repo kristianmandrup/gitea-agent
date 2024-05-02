@@ -3,6 +3,7 @@ import { IMainController } from "../main";
 
 export interface IRepoNotifier {
   notify(label: string, data: any): Promise<void>;
+  notifyError(label: string, data: any): Promise<void>;
 }
 
 export class RepoNotifier implements IRepoNotifier {
@@ -36,9 +37,15 @@ export class RepoNotifier implements IRepoNotifier {
     }
   }
 
+  async notifyError(label: string, data: any) {
+    await this.notify(`ERROR:${label}`, data);
+  }
+
   async notify(label: string, data: any) {
     const message = JSON.stringify(label, data);
-    const aiResponse = await this.aiAdapter.notifyAi(message);
-    this.handleResponse(aiResponse);
+    const aiResponses = await this.aiAdapter.notifyAi(message);
+    for (const response of aiResponses) {
+      this.handleResponse(response);
+    }
   }
 }
