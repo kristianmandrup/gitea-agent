@@ -9,7 +9,11 @@ export class GetBranchActionHandler extends CompositeActionHandler {
   name = "get_branch";
 
   async handle(action: Action) {
-    const data = await this.main.repos.branches.getNamed(action.name);
+    const { name } = action.fnArgs;
+    if (!name) {
+      throw new Error("Missing name");
+    }
+    const data = await this.main.repos.branches.getNamed(name);
     console.log({ data });
   }
 

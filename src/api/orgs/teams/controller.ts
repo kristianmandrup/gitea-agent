@@ -1,7 +1,18 @@
-import { CreateTeamOption, EditTeamOption } from "gitea-js";
+import { CreateTeamOption, EditTeamOption, Team } from "gitea-js";
 import { OrgAccessor } from "../controller";
 
-export class OrgTeamController extends OrgAccessor {
+export interface IOrgTeamController {
+  setTeamId(teamId: number): this;
+  getById(id?: number): Promise<Team>;
+  search(query: any): Promise<any>;
+  create(teamName: string, opts?: CreateTeamOption): Promise<Team>;
+  list(query?: any): Promise<Team[]>;
+}
+
+export class OrgTeamController
+  extends OrgAccessor
+  implements IOrgTeamController
+{
   teamId?: number;
 
   setTeamId(teamId: number) {
@@ -17,7 +28,15 @@ export class OrgTeamController extends OrgAccessor {
     return response.data;
   }
 
-  async createTeam(teamName: string, opts?: CreateTeamOption) {
+  async getById(id = this.teamId) {
+    if (!id) {
+      throw new Error("Missing team id");
+    }
+    const response = await this.api.teams.orgGetTeam(id);
+    return response.data;
+  }
+
+  async create(teamName: string, opts?: CreateTeamOption) {
     if (!this.name) {
       throw new Error("Missing organization name");
     }
@@ -29,7 +48,7 @@ export class OrgTeamController extends OrgAccessor {
     return response.data;
   }
 
-  async listTeams(query?: any) {
+  async list(query?: any) {
     if (!this.name) {
       throw new Error("Missing organization name");
     }
