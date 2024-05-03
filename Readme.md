@@ -123,18 +123,35 @@ export class GiteaBranchController
           new_branch_name: branchName,
         }
       );
-      return this.notifyAndReturn<Branch>(label, response, branchName);
+      return this.notifyAndReturn<Branch>({ label, response }, branchName);
     } catch (error) {
-      return await this.notifyErrorAndReturn(
-        label,
-        undefined,
-        error,
-        branchName
-      );
+      return await this.notifyErrorAndReturn({ label, error }, branchName);
     }
   }
 
   // more methods
+}
+```
+
+You can also include a default value to be returned in case of an error, as in the following example:
+
+```ts
+const returnVal: any[] = [];
+try {
+  const response = await this.api.repos.repoCreateBranchProtection(
+    this.owner,
+    this.repoName,
+    fullOpts
+  );
+  return await this.notifyAndReturn<BranchProtection>(
+    { label, returnVal, response },
+    branchName
+  );
+} catch (error) {
+  return await this.notifyErrorAndReturn(
+    { label, returnVal, error },
+    branchName
+  );
 }
 ```
 

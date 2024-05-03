@@ -57,6 +57,7 @@ export class GiteaBranchController
       ...(opts || {}),
       branch_name: branchName,
     };
+    const returnVal: any[] = [];
     try {
       const response = await this.api.repos.repoCreateBranchProtection(
         this.owner,
@@ -64,12 +65,12 @@ export class GiteaBranchController
         fullOpts
       );
       return await this.notifyAndReturn<BranchProtection>(
-        { label, returnVal: [], response },
+        { label, returnVal, response },
         branchName
       );
     } catch (error) {
       return await this.notifyErrorAndReturn(
-        { label, returnVal: [], error },
+        { label, returnVal, error },
         branchName
       );
     }
