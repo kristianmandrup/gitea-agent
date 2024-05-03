@@ -11,4 +11,6 @@ export interface IActionHandler {
   definition: any;
 
   handle(action: Action): Promise<void>;
+  notifyError(label: string, data: any): void;
+  notify(label: string, data: any): void;
 }
