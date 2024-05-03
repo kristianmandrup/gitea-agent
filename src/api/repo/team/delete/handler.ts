@@ -9,7 +9,9 @@ export class DeleteTeamActionHandler extends CompositeActionHandler {
   name = "delete_team";
 
   async handle(action: Action) {
-    const data = await this.main.repos.teams.delete(action.name);
+    if (!this.validateRequired(action)) return;
+    const { name } = action.fnArgs;
+    const data = await this.main.repos.teams.delete(name);
     console.log({ data });
   }
 

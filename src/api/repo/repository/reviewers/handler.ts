@@ -6,10 +6,11 @@ export const buildGetReviewersHandler = (main: IMainController) =>
   new GetReviewersActionHandler(main);
 
 export class GetReviewersActionHandler extends CompositeActionHandler {
-  name = "get_reviewers";
+  name = "list_reviewers";
 
-  async handle(_action: Action) {
-    const data = await this.main.repos.getReviewers();
+  async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
+    const data = await this.main.repos.listReviewers();
     console.log({ data });
   }
 

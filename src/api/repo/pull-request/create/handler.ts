@@ -9,6 +9,7 @@ export class CreatePullRequestActionHandler extends CompositeActionHandler {
   name = "create_pull_request";
 
   async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
     const opts = action.fnArgs;
     const data = await this.main.repos.pullRequests.create(opts);
     console.log({ data });

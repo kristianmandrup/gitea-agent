@@ -8,7 +8,8 @@ export const buildListMilestonesHandler = (main: IMainController) =>
 export class ListMilestonesActionHandler extends CompositeActionHandler {
   name = "list_milestones";
 
-  async handle(_action: Action) {
+  async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
     const data = await this.main.repos.milestones.list();
     console.log({ data });
   }

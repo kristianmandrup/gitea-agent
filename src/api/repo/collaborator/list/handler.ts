@@ -6,9 +6,10 @@ export const buildListCollaboratorsHandler = (main: IMainController) =>
   new ListCollaboratorActionHandler(main);
 
 export class ListCollaboratorActionHandler extends CompositeActionHandler {
-  name = "list_branch";
+  name = "list_collaborators";
 
-  async handle(_action: Action) {
+  async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
     const data = await this.main.repos.branches.list();
     console.log({ data });
   }

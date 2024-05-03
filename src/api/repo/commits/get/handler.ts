@@ -9,6 +9,7 @@ export class GetCommitActionHandler extends CompositeActionHandler {
   name = "get_commit";
 
   async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
     if (!action.fnArgs.sha) {
       throw new Error("Missing sha");
     }

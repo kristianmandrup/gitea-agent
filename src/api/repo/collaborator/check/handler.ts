@@ -6,10 +6,12 @@ export const buildCheckCollaboratorHandler = (main: IMainController) =>
   new CheckCollaboratorActionHandler(main);
 
 export class CheckCollaboratorActionHandler extends CompositeActionHandler {
-  name = "check_branch";
+  name = "check_collaborator";
 
   async handle(action: Action) {
-    const data = await this.main.repos.collaborators.check(action.name);
+    if (!this.validateRequired(action)) return;
+    const { name } = action;
+    const data = await this.main.repos.collaborators.check(name);
     console.log({ data });
   }
 

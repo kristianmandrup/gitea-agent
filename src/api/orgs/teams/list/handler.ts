@@ -9,6 +9,7 @@ export class ListOrgTeamActionHandler extends CompositeActionHandler {
   name = "list_teams";
 
   async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
     const { limit } = action.fnArgs;
     const data = await this.main.orgs.teams.list({ limit });
     console.log({ data });

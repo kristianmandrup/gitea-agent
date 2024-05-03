@@ -9,9 +9,7 @@ export class DeleteIssueActionHandler extends CompositeActionHandler {
   name = "delete_issue";
 
   async handle(action: Action) {
-    if (!action.fnArgs.id) {
-      throw new Error("Missing id");
-    }
+    if (!this.validateRequired(action)) return;
     const id = action.fnArgs.id;
     const data = await this.main.repos.issues.delete(id);
     console.log({ data });

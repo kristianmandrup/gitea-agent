@@ -15,10 +15,12 @@ export class LeafActionHandler
   name = "unknown";
   type: ActionHandlerType = "leaf";
 
-  validateRequired(action: Action) {
+  validateRequired(action: Action): boolean {
+    let isValid = true;
     const { required } = this.definition;
     for (const param of this.definition.required) {
       if (!action.fnArgs[param]) {
+        isValid = false;
         this.notifyError("action:required:missing", {
           action,
           required,
@@ -26,6 +28,7 @@ export class LeafActionHandler
         });
       }
     }
+    return isValid;
   }
 
   notify(label: string, data: any) {

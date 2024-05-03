@@ -9,10 +9,8 @@ export class ListTeamReposActionHandler extends CompositeActionHandler {
   name = "list_team_repo";
 
   async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
     const { id } = action.fnArgs;
-    if (!id) {
-      throw new Error("Missing id");
-    }
     const data = await this.main.teams.repos.list(id);
     console.log({ data });
   }

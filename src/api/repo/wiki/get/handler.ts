@@ -2,17 +2,15 @@ import { Action, CompositeActionHandler } from "../../../actions";
 import { IMainController } from "../../../main";
 import { getWikiPage } from "./definition";
 
-export const buildGetPullRequestReviewHandler = (main: IMainController) =>
-  new GetPullRequestReviewActionHandler(main);
+export const buildGetWikiPagesHandler = (main: IMainController) =>
+  new GetWikiPagesActionHandler(main);
 
-export class GetPullRequestReviewActionHandler extends CompositeActionHandler {
-  name = "get_pull_request";
+export class GetWikiPagesActionHandler extends CompositeActionHandler {
+  name = "get_wiki_page";
 
   async handle(action: Action) {
-    if (!action.fnArgs.pageName) {
-      throw new Error("Missing pageName");
-    }
-    const pageName = action.fnArgs.id;
+    if (!this.validateRequired(action)) return;
+    const { pageName } = action.fnArgs;
     const data = await this.main.repos.wikis.getPage(pageName);
     console.log({ data });
   }

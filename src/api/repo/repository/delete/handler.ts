@@ -9,7 +9,9 @@ export class DeleteRepositoryActionHandler extends CompositeActionHandler {
   name = "delete_branch";
 
   async handle(action: Action) {
-    const data = await this.main.repos.branches.delete(action.name);
+    if (!this.validateRequired(action)) return;
+    const { name } = action.fnArgs;
+    const data = await this.main.repos.branches.delete(name);
     console.log({ data });
   }
 

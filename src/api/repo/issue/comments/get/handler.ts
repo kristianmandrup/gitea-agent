@@ -9,10 +9,8 @@ export class GetIssueCommentActionHandler extends CompositeActionHandler {
   name = "get_release";
 
   async handle(action: Action) {
-    if (!action.fnArgs.id) {
-      throw new Error("Missing id");
-    }
-    const id = action.fnArgs.id;
+    if (!this.validateRequired(action)) return;
+    const { id } = action.fnArgs;
     const data = await this.main.repos.issues.comments.getComments(id);
     console.log({ data });
   }

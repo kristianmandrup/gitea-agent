@@ -9,9 +9,7 @@ export class MergePullRequestActionHandler extends CompositeActionHandler {
   name = "merge_pull_request";
 
   async handle(action: Action) {
-    if (!action.fnArgs.id) {
-      throw new Error("Missing id");
-    }
+    if (!this.validateRequired(action)) return;
     const { id, mergeType } = action.fnArgs;
     const number = Number(id);
     const data = await this.main.repos.pullRequests.merge(number, mergeType);

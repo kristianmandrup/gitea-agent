@@ -9,9 +9,7 @@ export class DeletePullRequestReviewActionHandler extends CompositeActionHandler
   name = "delete_pull_request_review";
 
   async handle(action: Action) {
-    if (!action.fnArgs.id) {
-      throw new Error("Missing id");
-    }
+    if (!this.validateRequired(action)) return;
     const id = Number(action.fnArgs.id);
     const reviewId = Number(action.fnArgs.reviewId);
     const data = await this.main.repos.pullRequests.reviews.delete(

@@ -1,6 +1,6 @@
 import { Action, CompositeActionHandler } from "../../../actions";
 import { IMainController } from "../../../main";
-import { getAssignees } from "./definition";
+import { listAssignees } from "./definition";
 
 export const buildGetAssigneesHandler = (main: IMainController) =>
   new GetAssigneesActionHandler(main);
@@ -8,12 +8,13 @@ export const buildGetAssigneesHandler = (main: IMainController) =>
 export class GetAssigneesActionHandler extends CompositeActionHandler {
   name = "get_assignees";
 
-  async handle(_action: Action) {
-    const data = await this.main.repos.getAssignees();
+  async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
+    const data = await this.main.repos.listAssignees();
     console.log({ data });
   }
 
   get definition(): any {
-    return getAssignees;
+    return listAssignees;
   }
 }

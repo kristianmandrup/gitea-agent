@@ -8,8 +8,9 @@ export const buildGetRepositoryHandler = (main: IMainController) =>
 export class GetRepositoryActionHandler extends CompositeActionHandler {
   name = "get_repository";
 
-  async handle(_action: Action) {
-    const data = await this.main.repos.getRepo();
+  async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
+    const data = await this.main.repos.get();
     console.log({ data });
   }
 

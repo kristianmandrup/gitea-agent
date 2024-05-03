@@ -6,9 +6,10 @@ export const buildListTeamHandler = (main: IMainController) =>
   new ListTeamActionHandler(main);
 
 export class ListTeamActionHandler extends CompositeActionHandler {
-  name = "list_branch";
+  name = "list_teams";
 
-  async handle(_action: Action) {
+  async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
     const data = await this.main.repos.branches.list();
     console.log({ data });
   }

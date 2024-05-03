@@ -9,9 +9,7 @@ export class CreateIssueActionHandler extends CompositeActionHandler {
   name = "create_issue";
 
   async handle(action: Action) {
-    if (!action.fnArgs.title) {
-      throw new Error("Missing title");
-    }
+    if (!this.validateRequired(action)) return;
     const opts = action.fnArgs;
     const { title, body } = action.fnArgs;
     const data = await this.main.repos.issues.create(title, body, opts);

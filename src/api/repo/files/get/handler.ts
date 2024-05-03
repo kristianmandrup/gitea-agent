@@ -9,9 +9,7 @@ export class GetFileInfoActionHandler extends CompositeActionHandler {
   name = "get_info";
 
   async handle(action: Action) {
-    if (!action.fnArgs.id) {
-      throw new Error("Missing id");
-    }
+    if (!this.validateRequired(action)) return;
     const id = Number(action.fnArgs.id);
     const data = await this.main.repos.releases.getById(id);
     console.log({ data });

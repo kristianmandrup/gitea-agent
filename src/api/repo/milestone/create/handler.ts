@@ -9,9 +9,7 @@ export class CreateMilestoneActionHandler extends CompositeActionHandler {
   name = "create_milestone";
 
   async handle(action: Action) {
-    if (!action.fnArgs.id) {
-      throw new Error("Missing id");
-    }
+    if (!this.validateRequired(action)) return;
     const opts = action.fnArgs;
     const data = await this.main.repos.milestones.create(opts);
     console.log({ data });

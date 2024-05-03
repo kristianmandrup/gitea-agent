@@ -9,16 +9,8 @@ export class AddTeamRepoActionHandler extends CompositeActionHandler {
   name = "add_team_repo";
 
   async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
     const { id, organization, repository } = action.fnArgs;
-    if (!id) {
-      throw new Error("Missing id");
-    }
-    if (!organization) {
-      throw new Error("Missing organization");
-    }
-    if (!repository) {
-      throw new Error("Missing repository");
-    }
     const data = await this.main.teams.repos.add(id, organization, repository);
     console.log({ data });
   }

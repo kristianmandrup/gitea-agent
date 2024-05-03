@@ -9,10 +9,8 @@ export class CreateBranchActionHandler extends CompositeActionHandler {
   name = "create_branch";
 
   async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
     const { name } = action;
-    if (!name) {
-      throw new Error("Missing name");
-    }
     const data = await this.main.repos.branches.create(name);
     console.log({ data });
   }

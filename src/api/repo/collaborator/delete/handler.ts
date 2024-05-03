@@ -9,7 +9,9 @@ export class CreateCollaboratorActionHandler extends CompositeActionHandler {
   name = "delete_collaborator";
 
   async handle(action: Action) {
-    const data = await this.main.repos.collaborators.delete(action.name);
+    if (!this.validateRequired(action)) return;
+    const { name } = action;
+    const data = await this.main.repos.collaborators.delete(name);
     console.log({ data });
   }
 

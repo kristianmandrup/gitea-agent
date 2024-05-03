@@ -9,10 +9,8 @@ export class DeleteOrganizationActionHandler extends CompositeActionHandler {
   name = "delete_branch";
 
   async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
     const { name } = action.fnArgs;
-    if (!name) {
-      throw new Error("Missing name");
-    }
     const data = await this.main.orgs.delete(name);
     console.log({ data });
   }

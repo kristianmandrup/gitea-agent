@@ -9,9 +9,7 @@ export class CreateFileActionHandler extends CompositeActionHandler {
   name = "create_file";
 
   async handle(action: Action) {
-    if (!action.fnArgs.id) {
-      throw new Error("Missing id");
-    }
+    if (!this.validateRequired(action)) return;
     const { filepath, content, message, branch, author } = action.fnArgs;
     const opts = { content, message, branch, author };
     const data = await this.main.repos.files.create(filepath, content, opts);

@@ -10,7 +10,7 @@ export class CreateUserAccessTokenActionHandler extends LeafActionHandler {
   name = "create_user_access_token";
 
   async handle(action: Action) {
-    this.validateRequired(action);
+    if (!this.validateRequired(action)) return;
     const { username, tokenName, scopes } = action.fnArgs;
     const data = await this.main.users.tokens.create(username, {
       scopes,

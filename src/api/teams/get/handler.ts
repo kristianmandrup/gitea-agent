@@ -9,10 +9,8 @@ export class GetTeamActionHandler extends CompositeActionHandler {
   name = "get_team";
 
   async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
     const { id } = action.fnArgs;
-    if (!id) {
-      throw new Error("Missing id");
-    }
     const data = await this.main.teams.getById(id);
     console.log({ data });
   }

@@ -1,6 +1,6 @@
-export const getAssignees = {
-  name: "get_assignees",
-  description: "Get assignees for the repository",
+export const listAssignees = {
+  name: "list_assignees",
+  description: "List assignees for the repository",
   parameters: {
     type: "object",
     properties: {},

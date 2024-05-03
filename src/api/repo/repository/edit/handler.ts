@@ -9,7 +9,9 @@ export class EditRepositoryActionHandler extends CompositeActionHandler {
   name = "create_branch";
 
   async handle(action: Action) {
-    const data = await this.main.repos.branches.create(action.name);
+    if (!this.validateRequired(action)) return;
+    const { name } = action.fnArgs;
+    const data = await this.main.repos.branches.create(name);
     console.log({ data });
   }
 

@@ -9,9 +9,7 @@ export class DeleteFileActionHandler extends CompositeActionHandler {
   name = "delete_release";
 
   async handle(action: Action) {
-    if (!action.fnArgs.filepath) {
-      throw new Error("Missing filepath");
-    }
+    if (!this.validateRequired(action)) return;
     const { filepath, sha, message, branch, author } = action.fnArgs;
     const opts = { message, branch, author, sha };
     const data = await this.main.repos.files.delete(filepath, sha, opts);

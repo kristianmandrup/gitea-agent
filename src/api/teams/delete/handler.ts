@@ -9,10 +9,8 @@ export class DeleteTeamActionHandler extends CompositeActionHandler {
   name = "delete_team";
 
   async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
     const { id } = action.fnArgs;
-    if (!id) {
-      throw new Error("Missing id");
-    }
     const data = await this.main.teams.delete(id);
     console.log({ data });
   }

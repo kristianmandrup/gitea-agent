@@ -8,7 +8,7 @@ export const buildListTeamHandler = (main: IMainController) =>
 export class ListTeamActionHandler extends CompositeActionHandler {
   name = "list_team_members";
 
-  async handle(action: Action) {
+  async handle(_action: Action) {
     const data = await this.main.teams.members.list();
     console.log({ data });
   }

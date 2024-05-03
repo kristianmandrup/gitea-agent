@@ -9,7 +9,7 @@ export class ListUserOrgsActionHandler extends CompositeActionHandler {
   name = "list_user_organizations";
 
   async handle(action: Action) {
-    this.validateRequired(action);
+    if (!this.validateRequired(action)) return;
     const { username } = action.fnArgs;
     const data = await this.main.users.listOrgs(username);
     console.log({ data });

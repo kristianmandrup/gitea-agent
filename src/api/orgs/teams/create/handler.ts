@@ -9,10 +9,8 @@ export class CreateOrgTeamActionHandler extends CompositeActionHandler {
   name = "create_branch";
 
   async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
     const { name, description, permission } = action.fnArgs;
-    if (!name) {
-      throw new Error("Missing team name");
-    }
     const data = await this.main.orgs.teams.create(name, {
       name,
       description,

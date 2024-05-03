@@ -8,7 +8,8 @@ export const buildListIssuesHandler = (main: IMainController) =>
 export class ListIssuesActionHandler extends CompositeActionHandler {
   name = "list_issues";
 
-  async handle(_action: Action) {
+  async handle(action: Action) {
+    if (!this.validateRequired(action)) return;
     const data = await this.main.repos.issues.list();
     console.log({ data });
   }

@@ -9,7 +9,9 @@ export class CreateCollaboratorActionHandler extends CompositeActionHandler {
   name = "add_collaborator";
 
   async handle(action: Action) {
-    const data = await this.main.repos.collaborators.add(action.name);
+    if (!this.validateRequired(action)) return;
+    const { name } = action;
+    const data = await this.main.repos.collaborators.add(name);
     console.log({ data });
   }
 

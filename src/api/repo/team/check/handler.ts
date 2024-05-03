@@ -6,10 +6,12 @@ export const buildCheckTeamHandler = (main: IMainController) =>
   new CheckTeamActionHandler(main);
 
 export class CheckTeamActionHandler extends CompositeActionHandler {
-  name = "check_branch";
+  name = "check_team";
 
   async handle(action: Action) {
-    const data = await this.main.repos.teams.check(action.name);
+    if (!this.validateRequired(action)) return;
+    const { name } = action.fnArgs;
+    const data = await this.main.repos.teams.check(name);
     console.log({ data });
   }
 
