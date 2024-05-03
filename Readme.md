@@ -201,11 +201,43 @@ Each action definition is a JSON schema that defines the name of the actions and
 
 ```ts
 main.definitions; // => [
-// { name: "create_branch", properties: {...} }
+// {
+// name: "create_branch", properties: {...} }
 // ]
 ```
 
+A full action definition may look as follows:
+
+```ts
+export const createBranch = {
+  name: "create_branch",
+  description: "Creates a branch with a given name in a repository",
+  parameters: {
+    type: "object",
+    properties: {
+      name: {
+        type: "string",
+        description: "Name of the branch",
+      },
+    },
+  },
+  required: ["name"],
+};
+```
+
 The definitions can be used to communicate available actions to an AI agent so it knows how to execute those actions by sending a JSON response conforming to the action definition.
+
+An AI action response for the above action definition may look as follows:
+
+```json
+{
+  "target": "gitea",
+  "name": "create_branch",
+  "parameters": {
+    "name": "my-branch"
+  }
+}
+```
 
 ## AI notifications
 
