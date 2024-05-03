@@ -1,4 +1,4 @@
 export * from "./action-handler";
-export * from "./all";
+export * from "./list";
 export * from "./controller";
 export * from "./get";

@@ -8,10 +8,10 @@ import { buildOpenIssueHandler } from "./open";
 import { buildCloseIssueHandler } from "./close";
 import { buildEditIssueHandler } from "./edit";
 
-export const buildReleaseHandler = (main: IMainController) =>
-  new RepoReleaseActionHandler(main);
+export const buildIssuesHandler = (main: IMainController) =>
+  new RepoIssuesActionHandler(main);
 
-export class RepoReleaseActionHandler extends CompositeActionHandler {
+export class RepoIssuesActionHandler extends CompositeActionHandler {
   get handlers() {
     return [
       buildCreateIssueHandler,

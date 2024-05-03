@@ -14,6 +14,8 @@ import {
 } from "./tokens/controller";
 
 export interface IUserController {
+  tokens: IUserTokenController;
+
   listKeys(username: string): Promise<PublicKey[]>;
   listRepos(username: string): Promise<Repository[]>;
   listOrgs(username: string): Promise<Organization[]>;

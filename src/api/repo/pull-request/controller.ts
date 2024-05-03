@@ -36,7 +36,7 @@ export interface IPullRequestController {
   create(opts?: CreatePullRequestOption): Promise<any>;
   update(style?: MergeStyle, index?: number): Promise<PullRequest>;
   delete(index: number): Promise<void>;
-  getSingle(index: number): Promise<PullRequest>;
+  getByIndex(index: number): Promise<PullRequest>;
   isMerged(index: number): Promise<boolean>;
   list(): Promise<PullRequest[]>;
   getFiles(index?: number): Promise<ChangedFile[]>;
@@ -96,7 +96,7 @@ export class GiteaPullRequestController extends RepoAccessor {
     return response.data;
   }
 
-  async getSingle(index = this.index) {
+  async getByIndex(index = this.index) {
     if (!index) {
       throw new Error("Missing PR identification number");
     }

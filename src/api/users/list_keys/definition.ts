@@ -3,7 +3,12 @@ export const listUserKeys = {
   description: "List keys for a user",
   parameters: {
     type: "object",
-    properties: {},
+    properties: {
+      username: {
+        type: "string",
+        description: "username of the user",
+      },
+    },
   },
   required: [],
 };

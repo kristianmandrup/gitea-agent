@@ -1,13 +1,14 @@
 import { CompositeActionHandler } from "../../actions";
 import { IMainController } from "../../main";
-import { buildGetFileInfoHandler } from "./get";
-import { buildListFilesHandler } from "./all";
+import {} from "./get";
+import { buildListCommitsHandler } from "./list";
+import { buildGetCommitHandler } from "./get";
 
-export const buildFileHandler = (main: IMainController) =>
-  new RepoFileActionHandler(main);
+export const buildCommitsHandler = (main: IMainController) =>
+  new RepoCommitsActionHandler(main);
 
-export class RepoFileActionHandler extends CompositeActionHandler {
+export class RepoCommitsActionHandler extends CompositeActionHandler {
   get handlers() {
-    return [buildGetFileInfoHandler, buildListFilesHandler];
+    return [buildGetCommitHandler, buildListCommitsHandler];
   }
 }

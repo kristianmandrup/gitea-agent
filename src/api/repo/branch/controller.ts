@@ -7,16 +7,19 @@ import { RepoAccessor } from "../repo-accesser";
 
 export interface IBranchController {
   create(branchName: string): Promise<Branch>;
-  createBranchProtection(
+  createProtection(
     branchName: string,
     opts: CreateBranchProtectionOption
   ): Promise<BranchProtection>;
   delete(branchName: string): Promise<any>;
   list(): Promise<Branch[]>;
-  getNamed(branchName: string): Promise<Branch>;
+  getByName(branchName: string): Promise<Branch>;
 }
 
-export class GiteaBranchController extends RepoAccessor {
+export class GiteaBranchController
+  extends RepoAccessor
+  implements IBranchController
+{
   async create(branchName: string) {
     const response = await this.api.repos.repoCreateBranch(
       this.owner,
@@ -33,7 +36,7 @@ export class GiteaBranchController extends RepoAccessor {
     return response.data;
   }
 
-  async createBranchProtection(
+  async createProtection(
     branchName: string,
     opts?: CreateBranchProtectionOption
   ) {
@@ -80,7 +83,7 @@ export class GiteaBranchController extends RepoAccessor {
     return response.data;
   }
 
-  async getNamed(branchName: string) {
+  async getByName(branchName: string) {
     const response = await this.api.repos.repoGetBranch(
       this.owner,
       this.repoName,

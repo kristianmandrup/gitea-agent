@@ -1,14 +1,16 @@
 import { CompositeActionHandler } from "../../actions";
 import { IMainController } from "../../main";
-// import {  } from "./list_keys";
-// import {  } from "./list_repos";
-// import {  } from "./tokens";
+import { buildCreateUserAccessTokenHandler } from "./create";
+import { buildDeleteUserAccessTokenHandler } from "./delete";
 
-export const buildBranchHandler = (main: IMainController) =>
-  new RepoBranchActionHandler(main);
+export const buildUserTokensHandler = (main: IMainController) =>
+  new UserTokensActionHandler(main);
 
-export class RepoBranchActionHandler extends CompositeActionHandler {
+export class UserTokensActionHandler extends CompositeActionHandler {
   get handlers() {
-    return [];
+    return [
+      buildCreateUserAccessTokenHandler,
+      buildDeleteUserAccessTokenHandler,
+    ];
   }
 }

@@ -1,16 +1,24 @@
-export const getAll = {
-  name: "get_commits",
-  description: "Get all commits",
+export const listCommits = {
+  name: "list_commits",
+  description: "List commits",
   parameters: {
     type: "object",
     properties: {
-      filepath: {
+      path: {
         type: "string",
         description: "filepath of a file/dir",
       },
       sha: {
         type: "string",
         description: "SHA of the commit or branch to start from",
+      },
+      stat: {
+        type: "boolean",
+        description: "Include stats",
+      },
+      files: {
+        type: "boolean",
+        description: "Include files",
       },
     },
   },

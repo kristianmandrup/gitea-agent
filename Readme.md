@@ -17,47 +17,77 @@ The various controllers are all exported from the main `index.ts` file in the `s
 
 The `GiteaMainController` is the `main` controller that acts as a hub (and root) for all the other primary controllers
 
-- `admin` done
-- `orgs` mostly done
-- `repo` mostly done
-- `teams` mostly done
-- `users` todo
+```yaml
+- admin
+  - users
+- orgs
+  - members
+  - teams
+  - repos
+- repo
+  - branches
+  - collaborators
+  - commits
+  - files
+  - issues
+  - teams
+  - milestones
+  - pullRequests
+  - reviews
+  - comments
+  - releases
+  - wiki
+  - topics (not done)
+  - tags (not done)
+- teams
+  - members
+  - repos
+- users
+  - tokens
+```
 
-The `teams` controller contains:
-
-- `members`
-- `repos`
-
-The root `repo` controller contains:
-
-- `commits` - done
-- `branches` - done
-- `teams` - done
-- `milestones` - done
-- `pullRequests` - done
-- `issues` - mostly done
-- `collaborators` done
-- `topics` todo
-
-The `pullRequests` controller contains:
-
-- `reviews` reviews for a given PR - partly done
-
-The `reviews` controller contains:
-
-- `comments` comment actions on reviews
+Note: Project and Board API support will be coming when Gitea releases API support, likely in `1.23` coming up later in 2024.
 
 ## Quick start
 
-Sample code to get going:
+Set Env variables for the Gitea api, including _access token_ and _gitea base url_.
+These are used when creating the Gitea API client.
 
 ```ts
-const main = new GiteaMainController();
-main.orgs.create("my-org");
-main.admin.users.create("my-name");
-// ...
+const accessToken = process.env.GITEA_ACCESS_TOKEN;
+const apiUrl = process.env.GITEA_URL || "https://try.gitea.com/";
+```
 
-main.addRepoController("myaccount", "myreponame");
+Now you can get going using the `GiteaMainController` as the starting point.
+
+```ts
+// create the main gitea root controller
+const main = new GiteaMainController();
+// create an organisation
+main.orgs.create("my-org");
+// create a user
+main.admin.users.create("my-name");
+// Create repo controller and make it the default active one for further API calls
+main.addRepoController("myaccount", "myreponame", true);
+// get the active repo controller
+const $repos = main.repos;
+// get repo details
+const repo = $repos.get();
+// get PR controller for repo
+const $prc = $repos.pullRequests;
+// get list of PRs for repo
+const prs = prc.list();
+// set the active PR index to use going forward
+$prc.setIndex(1);
+// get a PR using the default active index
+const pr = $prc.get();
+// create a new PR
+const created = $prc.create({
+  title: "my PR",
+  body: "This PR ...",
+  head: headSha,
+});
+// ... more
 ```
 
 ## Gitea API

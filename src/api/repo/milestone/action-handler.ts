@@ -5,10 +5,10 @@ import { buildDeleteMilestoneHandler } from "./delete";
 import { buildGetMilestoneHandler } from "./get";
 import { buildListMilestonesHandler } from "./list";
 
-export const buildReleaseHandler = (main: IMainController) =>
-  new RepoReleaseActionHandler(main);
+export const buildMilestonesHandler = (main: IMainController) =>
+  new RepoMilestonesActionHandler(main);
 
-export class RepoReleaseActionHandler extends CompositeActionHandler {
+export class RepoMilestonesActionHandler extends CompositeActionHandler {
   get handlers() {
     return [
       buildCreateMilestoneHandler,

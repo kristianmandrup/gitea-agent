@@ -7,10 +7,10 @@ import { buildIsPullRequestMergedHandler } from "./is_merged";
 import { buildListPullRequestsHandler } from "./list";
 import { buildMergePullRequestHandler } from "./merge";
 
-export const buildReleaseHandler = (main: IMainController) =>
-  new RepoReleaseActionHandler(main);
+export const buildPullRequestsHandler = (main: IMainController) =>
+  new RepoPullRequestsActionHandler(main);
 
-export class RepoReleaseActionHandler extends CompositeActionHandler {
+export class RepoPullRequestsActionHandler extends CompositeActionHandler {
   get handlers() {
     return [
       buildCreatePullRequestHandler,

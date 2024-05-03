@@ -1,5 +1,10 @@
 import { MainActionHandler } from "./action-handler";
-import { Action, CompositeActionHandler, IActionHandler } from "./actions";
+import {
+  Action,
+  CompositeActionHandler,
+  IActionHandler,
+  ICompositeActionHandler,
+} from "./actions";
 import { GiteaAdminController, IAdminController } from "./admin";
 import { GiteaApi, GiteaApiAccessor } from "./api";
 import { IMainNotifier, MainNotifier } from "./notifier";
@@ -18,18 +23,22 @@ export interface IMainController {
   notifier: IMainNotifier;
 
   handle(action: Action): Promise<void>;
+  setNotifier(notifier: IMainNotifier): this;
   notify(label: string, data: any): void;
   notifyError(label: string, data: any): void;
 }
 
 export type RepoMap = Record<string, IRepoController>;
 
-export class GiteaMainController extends GiteaApiAccessor {
+export class GiteaMainController
+  extends GiteaApiAccessor
+  implements IMainController
+{
   admin: IAdminController;
   orgs: IOrgController;
   teams: ITeamController;
   users: IUserController;
-  actionHandler: CompositeActionHandler;
+  actionHandler: ICompositeActionHandler;
   notifier: IMainNotifier;
 
   // repos
@@ -45,6 +54,16 @@ export class GiteaMainController extends GiteaApiAccessor {
     this.users = this.createUsersController();
     this.actionHandler = this.createActionHandler();
     this.notifier = this.createNotifier();
+  }
+
+  setNotifier(notifier: IMainNotifier) {
+    this.notifier = notifier;
+    return this;
+  }
+
+  setActionHandler(actionHandler: ICompositeActionHandler) {
+    this.actionHandler = actionHandler;
+    return this;
   }
 
   createNotifier() {
@@ -84,10 +103,10 @@ export class GiteaMainController extends GiteaApiAccessor {
   }
 
   get repos() {
-    return this.getRepoController();
+    return this.useRepoController();
   }
 
-  getRepoController(owner?: string, name?: string) {
+  useRepoController(owner?: string, name?: string) {
     const ownerName = owner || this.activeOwner;
     if (!ownerName) {
       throw new Error("Missing repo owner");
@@ -97,13 +116,27 @@ export class GiteaMainController extends GiteaApiAccessor {
     if (!repoName) {
       throw new Error("Missing repo name");
     }
+    this.setActive({ owner, name });
     return repoMap[repoName];
   }
 
-  addRepoController(owner: string, name: string) {
+  protected setActive({ owner, name }: { owner?: string; name?: string }) {
+    // set active defaults
+    if (owner) {
+      this.activeOwner = owner;
+    }
+    if (name) {
+      this.activeRepo = name;
+    }
+  }
+
+  addRepoController(owner: string, name: string, setActive = false) {
     this.owners[owner] = this.owners[owner] || {};
     const reposMap = this.owners[owner];
     reposMap[name] = reposMap[name] || this.createRepoController(owner, name);
+    if (setActive) {
+      this.setActive({ owner, name });
+    }
     return this;
   }
 

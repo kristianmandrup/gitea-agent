@@ -5,7 +5,7 @@ import { buildDeleteReleaseHandler } from "./delete";
 import { buildGetReleaseHandler } from "./get";
 import { buildListReleasesHandler } from "./list";
 
-export const buildReleaseHandler = (main: IMainController) =>
+export const buildReleasesHandler = (main: IMainController) =>
   new RepoReleaseActionHandler(main);
 
 export class RepoReleaseActionHandler extends CompositeActionHandler {

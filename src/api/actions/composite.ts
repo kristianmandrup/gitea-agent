@@ -4,9 +4,15 @@ import {
   ActionHandlerType,
   IActionHandler,
 } from "./handler";
-import { LeafActionHandler } from "./leaf";
+import { ILeafActionHandler, LeafActionHandler } from "./leaf";
 
 export type ActionHandlerRegistry = Record<string, IActionHandler>;
+
+export interface ICompositeActionHandler extends ILeafActionHandler {
+  definitions: any[];
+  registerHandler(handler: IActionHandler): void;
+  removeHandler(handler: IActionHandler): void;
+}
 
 export class CompositeActionHandler extends LeafActionHandler {
   type: ActionHandlerType = "composite";
@@ -25,6 +31,10 @@ export class CompositeActionHandler extends LeafActionHandler {
     for (const handler of this.buildHandlers()) {
       this.registerHandler(handler);
     }
+  }
+
+  get definition(): any {
+    return this.definitions;
   }
 
   get definitions(): any[] {

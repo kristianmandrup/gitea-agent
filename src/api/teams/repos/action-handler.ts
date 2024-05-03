@@ -4,10 +4,10 @@ import { buildAddTeamRepoHandler } from "./add";
 import { buildRemoveTeamRepoHandler } from "./remove";
 import { buildListTeamReposHandler } from "./list";
 
-export const buildTeamHandler = (main: IMainController) =>
-  new TeamActionHandler(main);
+export const buildTeamReposHandler = (main: IMainController) =>
+  new TeamReposActionHandler(main);
 
-export class TeamActionHandler extends CompositeActionHandler {
+export class TeamReposActionHandler extends CompositeActionHandler {
   get handlers() {
     return [
       buildAddTeamRepoHandler,

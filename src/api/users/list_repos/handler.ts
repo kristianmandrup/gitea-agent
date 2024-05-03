@@ -1,20 +1,21 @@
 import { Action, CompositeActionHandler } from "../../actions";
 import { IMainController } from "../../main";
-import { listUserKeys } from "./definition";
+import { listUserRepos } from "./definition";
 
-export const buildListUserKeysHandler = (main: IMainController) =>
-  new ListUserKeysActionHandler(main);
+export const buildListUserReposHandler = (main: IMainController) =>
+  new ListUserReposActionHandler(main);
 
-export class ListUserKeysActionHandler extends CompositeActionHandler {
-  name = "list_team_members";
+export class ListUserReposActionHandler extends CompositeActionHandler {
+  name = "list_user_repos";
 
   async handle(action: Action) {
+    this.validateRequired(action);
     const { username } = action.fnArgs;
-    const data = await this.main.users.listKeys(username);
+    const data = await this.main.users.listRepos(username);
     console.log({ data });
   }
 
   get definition(): any {
-    return listUserKeys;
+    return listUserRepos;
   }
 }

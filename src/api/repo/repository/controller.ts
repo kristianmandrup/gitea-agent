@@ -56,10 +56,11 @@ export interface IRepoController extends IMainAccessor {
   milestones: IRepoIssueMilestoneController;
   wikis: IWikiPageController;
 
-  getReviewers(): Promise<User[]>;
-  getAssignees(): Promise<User[]>;
-  getRepo(): Promise<Repository>;
-  editRepo(opts: EditRepoOption): Promise<Repository>;
+  tree(sha: string): Promise<any>;
+  listReviewers(): Promise<User[]>;
+  listAssignees(): Promise<User[]>;
+  get(): Promise<Repository>;
+  edit(opts: EditRepoOption): Promise<Repository>;
   setRepository(repository: Repository): IRepoController;
   generateFromTemplate(
     newName: string,
@@ -154,27 +155,27 @@ export class GiteaRepositoryController
     return new GiteaCollaboratorController(this);
   }
 
-  async getRepo() {
+  async get() {
     const response = await this.api.repos.repoGet(this.owner, this.name);
     return response.data;
   }
 
-  async editRepo(opts: EditRepoOption) {
+  async edit(opts: EditRepoOption) {
     const response = await this.api.repos.repoEdit(this.owner, this.name, opts);
     return response.data;
   }
 
-  async getTree(sha: string) {
+  async tree(sha: string) {
     const response = await this.api.repos.getTree(this.owner, this.name, sha);
     return response.data;
   }
 
-  async deleteRepo() {
+  async delete() {
     const response = await this.api.repos.repoDelete(this.owner, this.name);
     return response.data;
   }
 
-  async getAssignees() {
+  async listAssignees() {
     const response = await this.api.repos.repoGetAssignees(
       this.owner,
       this.name
@@ -182,7 +183,7 @@ export class GiteaRepositoryController
     return response.data;
   }
 
-  async getReviewers() {
+  async listReviewers() {
     const response = await this.api.repos.repoGetReviewers(
       this.owner,
       this.name

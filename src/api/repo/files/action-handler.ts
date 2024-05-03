@@ -6,7 +6,7 @@ import { buildDeleteFileHandler } from "./delete";
 import { buildGetFileInfoHandler } from "./get";
 import { buildListFilesHandler } from "./list";
 
-export const buildFileHandler = (main: IMainController) =>
+export const buildFilesHandler = (main: IMainController) =>
   new RepoFileActionHandler(main);
 
 export class RepoFileActionHandler extends CompositeActionHandler {

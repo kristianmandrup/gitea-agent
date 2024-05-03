@@ -3,6 +3,11 @@ import { GiteaMainAccessor } from "../main-accesser";
 import { Action } from "./action";
 import { ActionHandlerType, IActionHandler } from "./handler";
 
+export interface ILeafActionHandler {
+  definition(): any;
+  handle(action: Action): Promise<void>;
+}
+
 export class LeafActionHandler
   extends GiteaMainAccessor
   implements IActionHandler

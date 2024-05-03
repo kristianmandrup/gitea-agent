@@ -5,10 +5,10 @@ import { buildCheckCollaboratorHandler } from "./check";
 import { buildDeleteCollaboratorHandler } from "./delete";
 import { buildListCollaboratorsHandler } from "./list";
 
-export const buildBranchHandler = (main: IMainController) =>
-  new RepoBranchActionHandler(main);
+export const buildCollaboratorHandler = (main: IMainController) =>
+  new RepoCollaboratorActionHandler(main);
 
-export class RepoBranchActionHandler extends CompositeActionHandler {
+export class RepoCollaboratorActionHandler extends CompositeActionHandler {
   get handlers() {
     return [
       buildAddCollaboratorHandler,
