@@ -6,7 +6,7 @@ import {
 import { RepoAccessor } from "../repo-accesser";
 
 export interface IBranchController {
-  create(branchName: string): Promise<Branch>;
+  create(branchName: string): Promise<Branch | undefined>;
   createProtection(
     branchName: string,
     opts: CreateBranchProtectionOption
@@ -21,19 +21,30 @@ export class GiteaBranchController
   implements IBranchController
 {
   async create(branchName: string) {
-    const response = await this.api.repos.repoCreateBranch(
-      this.owner,
-      this.repoName,
-      {
-        new_branch_name: branchName,
-      }
-    );
-    const notification = {
-      ...this.repoData,
-      branchName,
-    };
-    await this.notify("repo:branch:create", notification);
-    return response.data;
+    const label = "repo:branch:create";
+    try {
+      const response = await this.api.repos.repoCreateBranch(
+        this.owner,
+        this.repoName,
+        {
+          new_branch_name: branchName,
+        }
+      );
+      const notification = {
+        ...this.repoData,
+        branchName,
+      };
+      await this.notify(label, notification);
+      return response.data;
+    } catch (error) {
+      const notification = {
+        ...this.repoData,
+        branchName,
+        error,
+      };
+      await this.notifyError(label, notification);
+      return;
+    }
   }
 
   async createProtection(

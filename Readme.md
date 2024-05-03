@@ -18,27 +18,29 @@ The various controllers are all exported from the main `index.ts` file in the `s
 The `GiteaMainController` is the `main` controller that acts as a hub (and root) for all the other primary controllers
 
 ```yaml
-- admin
-  - users
-- orgs
-  - members
-  - teams
-  - repos
-- repo
-  - branches
-  - collaborators
-  - commits
-  - files
-  - issues
-  - teams
-  - milestones
-  - pullRequests
-  - reviews
-  - comments
-  - releases
-  - wiki
-  - topics (not done)
-  - tags (not done)
+- admin:
+    - users
+    - public_keys
+- orgs:
+    - members
+    teams:
+        - repos
+- repo:
+    - branches
+    - collaborators
+    - commits
+    - files
+    issues:
+      - comments
+    - teams
+    - milestones
+    - pullRequests:
+        reviews:
+          - comments
+    - releases
+    - wiki
+    - topics (not done)
+    - tags (not done)
 - teams
   - members
   - repos
@@ -93,6 +95,43 @@ const created = $prc.create({
 ## Gitea API
 
 This library is using [gitea-js](https://www.npmjs.com/package/gitea-js) as a wrapper to work with the Gitea REST API.
+
+The Gitea API method are wrapped in controllers such as `GiteaRepoIssueCommentController`, with methods like the following `getComments`:
+
+```ts
+async getComments(index = this.index) {
+  if (!index) {
+    throw new Error("Missing issue index");
+  }
+  const label = "issue:comments:get";
+  try {
+    const response = await this.api.repos.issueGetComments(
+      this.owner,
+      this.repoName,
+      index
+    );
+    const comments = response.data;
+    const notification = {
+      ...this.repoData,
+      index,
+      comments,
+    };
+    await this.notify(label, notification);
+    return comments;
+  } catch (error) {
+    const notification = {
+      ...this.repoData,
+      index,
+      error,
+    };
+    await this.notifyError(label, notification);
+    return [];
+  }
+}
+```
+
+Each such wrapper method should wrap the call in a `try/catch`. On a successful API call, it should call `notify` with success details. On error, it should call `notifyError` with error details.
+Any notification should be sent to the relevant AI/user agents to act upon.
 
 ## Actions and Action handlers
 
