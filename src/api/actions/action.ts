@@ -11,4 +11,8 @@ export class Action implements IAction {
     this.name = name;
     this.parameters = parameters;
   }
+
+  static createFrom(actionObj: any) {
+    return new Action(actionObj.name, actionObj.parameters);
+  }
 }

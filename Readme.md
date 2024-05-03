@@ -262,6 +262,7 @@ An AI action response for the above action definition may look as follows:
 ```json
 {
   "target": "gitea",
+  "type": "action",
   "name": "create_branch",
   "parameters": {
     "name": "my-branch"
@@ -274,6 +275,8 @@ An AI action response for the above action definition may look as follows:
 As a result of executing an action, the controller or action handler can notify the result of the action via the registered `notifier`. A sample `RepoNotifier` is made available, which has a method `notify` that notifies an `AIAdapter`, such as the `OpenAIAdapter`.
 This lets the gitea agent communicate the notification to an OpenAI model via the OpenAI API.
 The same goes for errors, using `notifyError` to notify the AI about any action error.
+
+The following is from the `MainNotifier`, accessible via the `GiteaMainController`
 
 ```ts
   async notifyError(label: string, data: any) {
@@ -289,24 +292,40 @@ The same goes for errors, using `notifyError` to notify the AI about any action 
   }
 ```
 
+The AI adapter is notified with the message and the AI responses are iterated, and each is attempted handled as an action via `handleResponse`.
+
 ## Handling AI responses
 
 The notifier can be set up to received AI responses to the notification, which may include new actions to be handled by the Gitea main controller.
 
 The `OpenAIAdapter` includes support for HTTP Request/Response, whereas `OpenAIStreamAdapter` works with the OpenAI streaming API, which streams response via SSE events, that are processed and each sent to be handled by the controller as they are received.
 
+The following is from the `MainNotifier`, accessible via the `GiteaMainController`
+
 ```ts
-  handleAction(action: any) {
-    if (!this.isGiteaAction(action)) return;
+  isGiteaAction(action: any) {
+    if (!this.isAction(action)) return;
+    return action.target !== "gitea";
+  }
+
+  isAction(obj: any) {
+    return obj.type === "action";
+  }
+
+  handleAction(actionObj: any) {
+    if (!this.isGiteaAction(actionObj)) return;
+    const action = Action.createFrom(actionObj);
     this.main.handle(action);
   }
 
-  handleResponse(aiResponse: string) {
+  public handleResponse(aiResponse: string) {
     try {
-      const action = JSON.parse(aiResponse);
-      this.handleAction(action);
+      const actionObj = JSON.parse(aiResponse);
+      this.handleAction(actionObj);
     } catch (error) {
       console.log("Not a gitea action");
     }
   }
 ```
+
+The `handleResponse` method receives the AI reponse, attempts to parse it as JSON and determines if it is an action targeted at gitea. It then proceeds to handle the action, calling the main `handle` method which find the appropriate action handler to handle and execute the action.

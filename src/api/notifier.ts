@@ -1,4 +1,5 @@
 import { IAIAdapter, OpenAIAdapter } from "../ai/openai-adapter";
+import { Action } from "./actions";
 import { IMainController } from "./main";
 
 export interface INotifier {
@@ -28,15 +29,16 @@ export class MainNotifier implements INotifier {
     return obj.type === "action";
   }
 
-  handleAction(action: any) {
-    if (!this.isGiteaAction(action)) return;
+  handleAction(actionObj: any) {
+    if (!this.isGiteaAction(actionObj)) return;
+    const action = Action.createFrom(actionObj);
     this.main.handle(action);
   }
 
-  handleResponse(aiResponse: string) {
+  public handleResponse(aiResponse: string) {
     try {
-      const action = JSON.parse(aiResponse);
-      this.handleAction(action);
+      const actionObj = JSON.parse(aiResponse);
+      this.handleAction(actionObj);
     } catch (error) {
       console.log("Not a gitea action");
     }
