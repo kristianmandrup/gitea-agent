@@ -20,12 +20,6 @@ export class GiteaBranchController
   extends RepoBaseController
   implements IBranchController
 {
-  $api = this.api.repos;
-
-  get coreData() {
-    return this.repoData;
-  }
-
   async create(branchName: string) {
     const label = "repo:branch:create";
     try {
@@ -81,44 +75,42 @@ export class GiteaBranchController
   // repoListBranchProtection: (owner: string, repo: string
 
   async delete(branchName: string) {
+    const label = "repo:branch:delete";
     const response = await this.api.repos.repoDeleteBranch(
       this.owner,
       this.repoName,
       branchName
     );
-    const notification = {
-      ...this.repoData,
-      branchName,
-    };
-    this.enrich(notification, response);
-    await this.notify("repo:branch:delete", notification);
-    return this.returnData<any>(response);
+    return await this.notifyAndReturn<any>({ label, response }, branchName);
   }
 
   async list() {
+    const label = "repo:branch:list";
+    const returnVal: any[] = [];
     const response = await this.api.repos.repoListBranches(
       this.owner,
       this.repoName
     );
-    const notification = {
-      ...this.repoData,
-    };
-    this.enrich(notification, response);
-    await this.notify("repo:branch:list", notification);
-    return this.returnData<Branch[], any>(response, []);
+    return await this.notifyAndReturn<Branch[], any>({
+      label,
+      returnVal,
+      response,
+    });
   }
 
   async getByName(branchName: string) {
+    const label = "repo:branch:get";
     const response = await this.api.repos.repoGetBranch(
       this.owner,
       this.repoName,
       branchName
     );
-    const notification = {
-      ...this.repoData,
-    };
-    this.enrich(notification, response);
-    await this.notify("repo:branch:get", notification);
-    return this.returnData<Branch, unknown>(response);
+    return await this.notifyAndReturn<Branch, any>(
+      {
+        label,
+        response,
+      },
+      branchName
+    );
   }
 }

@@ -10,7 +10,7 @@ export class DeleteTeamActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { username } = action.fnArgs;
+    const { username } = action.parameters;
     const data = await this.main.teams.members.delete(username);
     console.log({ data });
   }

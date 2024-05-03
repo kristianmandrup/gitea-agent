@@ -10,7 +10,7 @@ export class ChangeFilesActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { files, message, branch, author } = action.fnArgs;
+    const { files, message, branch, author } = action.parameters;
     const opts = { message, branch, author, files };
     const data = await this.main.repos.files.changes(files, opts);
     console.log({ data });

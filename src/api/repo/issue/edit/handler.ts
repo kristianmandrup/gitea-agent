@@ -25,7 +25,7 @@ export class EditIssueActionHandler extends CompositeActionHandler {
     //     unset_due_date?: boolean;
     // }
     if (!this.validate(action)) return;
-    const opts = action.fnArgs;
+    const opts = action.parameters;
     const data = await this.main.repos.issues.edit(opts);
     console.log({ data });
   }

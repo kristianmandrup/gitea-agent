@@ -1,12 +1,8 @@
 import { IAIAdapter, OpenAIAdapter } from "../../ai/openai-adapter";
 import { IMainController } from "../main";
+import { INotifier } from "../notifier";
 
-export interface IRepoNotifier {
-  notify(label: string, data: any): Promise<void>;
-  notifyError(label: string, data: any): Promise<void>;
-}
-
-export class RepoNotifier implements IRepoNotifier {
+export class RepoNotifier implements INotifier {
   aiAdapter: IAIAdapter;
   main: IMainController;
 

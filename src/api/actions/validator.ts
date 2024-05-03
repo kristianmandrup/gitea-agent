@@ -83,7 +83,7 @@ export class ActionValidator implements IActionValidator {
     for (const propKey of Object.keys(properties)) {
       const prop = properties[propKey];
       const propType = prop.type;
-      const actionValue = action.fnArgs[propKey];
+      const actionValue = action.parameters[propKey];
       this.validateSimpleTypes(propType, propKey, actionValue);
       this.validateArrayTypes(propType, propKey, prop, actionValue);
       this.validateObjectTypes(propType, propKey, actionValue);
@@ -104,7 +104,7 @@ export class ActionValidator implements IActionValidator {
     let isValid = true;
     const { required } = this.definition;
     for (const param of this.definition.required) {
-      if (!action.fnArgs[param]) {
+      if (!action.parameters[param]) {
         isValid = false;
         this.notifyError("action:parameter:required:missing", {
           action,

@@ -10,7 +10,7 @@ export class CreateOrgTeamActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { name, description, permission } = action.fnArgs;
+    const { name, description, permission } = action.parameters;
     const data = await this.main.orgs.teams.create(name, {
       name,
       description,

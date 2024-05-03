@@ -177,7 +177,37 @@ There are two types of implementations of `IActionHandler`:
 
 Using composites, a tree hierarchy of `IActionHandler`s can easily be configured.
 
-The `BranchActionHandler` for branches has registered with the `RepoActionHandler` which has in turn been registered with the root `MainActionHandler` for the main controller.
+The `BranchActionHandler` for branches has been registered with the `RepoActionHandler` which has in turn been registered with the root `MainActionHandler` for the main controller.
+
+```
+main_action_handler:
+  repo_action_handler:
+    branch_action_handler:
+      - create
+      - delete
+      - ...
+```
+
+An individual leaf action handler such as `CreateBranchActionHandler` may look as follows
+
+````ts
+export class CreateBranchActionHandler extends LeafActionHandler {
+  name = "create_branch";
+
+  async handle(action: Action) {
+    // the incoming action is validated in terms of conformity to the action definition schema
+    if (!this.validate(action)) return;
+    // name parameter is extracted
+    const { name } = action.parameters;
+    // calls Gitea API wrapper via the main controller, drilling down to the branch controller
+    const data = await this.main.repos.branches.create(name);
+    console.log({ data });
+  }
+
+  get definition(): any {
+    return createBranch;
+  }
+}
 
 The `GiteaMainController` exposes an async `handle` method which delegates the action to each of these handlers registered, recursively down the tree, until a matching `LeafActionHandler` is found which executes the action.
 
@@ -186,7 +216,7 @@ To register a handler:
 ```ts
 const myTeamHandler = new MyTeamActionHandler(main);
 main.registerHandler(myTeamHandler);
-```
+````
 
 Remove handlers
 

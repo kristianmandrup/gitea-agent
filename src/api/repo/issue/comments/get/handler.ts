@@ -10,7 +10,7 @@ export class GetIssueCommentActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { id } = action.fnArgs;
+    const { id } = action.parameters;
     const data = await this.main.repos.issues.comments.getComments(id);
     console.log({ data });
   }

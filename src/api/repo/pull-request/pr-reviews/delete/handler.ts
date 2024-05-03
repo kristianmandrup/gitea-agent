@@ -10,8 +10,8 @@ export class DeletePullRequestReviewActionHandler extends CompositeActionHandler
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const id = Number(action.fnArgs.id);
-    const reviewId = Number(action.fnArgs.reviewId);
+    const id = Number(action.parameters.id);
+    const reviewId = Number(action.parameters.reviewId);
     const data = await this.main.repos.pullRequests.reviews.delete(
       reviewId,
       id

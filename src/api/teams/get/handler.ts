@@ -10,7 +10,7 @@ export class GetTeamActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { id } = action.fnArgs;
+    const { id } = action.parameters;
     const data = await this.main.teams.getById(id);
     console.log({ data });
   }

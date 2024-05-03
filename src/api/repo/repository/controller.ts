@@ -43,6 +43,7 @@ import {
 export interface IRepoController extends IMainAccessor {
   owner: string;
   name: string;
+  repoData: any;
   repository?: Repository;
   collaborators: ICollaboratorController;
   branches: IBranchController;
@@ -104,6 +105,13 @@ export class GiteaRepositoryController
     this.releases = this.createReleaseController();
     this.milestones = this.createMilestonesController();
     this.wikis = this.createWikiController();
+  }
+
+  get repoData() {
+    return {
+      owner: this.owner,
+      repoName: this.name,
+    };
   }
 
   public setRepository(repository: Repository) {

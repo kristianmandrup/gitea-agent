@@ -10,7 +10,7 @@ export class DeleteFileActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { filepath, sha, message, branch, author } = action.fnArgs;
+    const { filepath, sha, message, branch, author } = action.parameters;
     const opts = { message, branch, author, sha };
     const data = await this.main.repos.files.delete(filepath, sha, opts);
     console.log({ data });

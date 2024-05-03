@@ -1,14 +1,14 @@
 export interface IAction {
   name: string;
-  fnArgs: any;
+  parameters: any;
 }
 
 export class Action implements IAction {
   name: string;
-  fnArgs: any;
+  parameters: any;
 
-  constructor(name: string, fnArgs: any) {
+  constructor(name: string, parameters: any) {
     this.name = name;
-    this.fnArgs = fnArgs;
+    this.parameters = parameters;
   }
 }

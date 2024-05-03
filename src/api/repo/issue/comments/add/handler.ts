@@ -10,7 +10,7 @@ export class CreateIssueCommentActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { id, body } = action.fnArgs;
+    const { id, body } = action.parameters;
     const data = await this.main.repos.issues.comments.addComment(body, id);
     console.log({ data });
   }

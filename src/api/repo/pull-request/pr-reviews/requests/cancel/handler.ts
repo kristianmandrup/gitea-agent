@@ -10,7 +10,7 @@ export class CancelReviewRequestsActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { reviewers, teamReviewers, pullRequestId } = action.fnArgs;
+    const { reviewers, teamReviewers, pullRequestId } = action.parameters;
     const data =
       await this.main.repos.pullRequests.reviews.requests.cancelRequests(
         {

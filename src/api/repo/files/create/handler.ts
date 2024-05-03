@@ -10,7 +10,7 @@ export class CreateFileActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { filepath, content, message, branch, author } = action.fnArgs;
+    const { filepath, content, message, branch, author } = action.parameters;
     const opts = { content, message, branch, author };
     const data = await this.main.repos.files.create(filepath, content, opts);
     console.log({ data });

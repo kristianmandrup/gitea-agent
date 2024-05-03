@@ -1,12 +1,12 @@
-import { Action, CompositeActionHandler } from "../../../actions";
+import { Action, LeafActionHandler } from "../../../actions";
 import { IMainController } from "../../../main";
 import { listBranches } from "./definition";
 
 export const buildListBranchesHandler = (main: IMainController) =>
   new ListBranchesActionHandler(main);
 
-export class ListBranchesActionHandler extends CompositeActionHandler {
-  name = "list_branch";
+export class ListBranchesActionHandler extends LeafActionHandler {
+  name = "list_branches";
 
   async handle(action: Action) {
     if (!this.validate(action)) return;

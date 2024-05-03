@@ -10,7 +10,7 @@ export class CheckTeamActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { name } = action.fnArgs;
+    const { name } = action.parameters;
     const data = await this.main.repos.teams.check(name);
     console.log({ data });
   }

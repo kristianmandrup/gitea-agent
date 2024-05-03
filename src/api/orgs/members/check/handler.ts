@@ -10,7 +10,7 @@ export class OrgCheckIsMemberActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { username } = action.fnArgs;
+    const { username } = action.parameters;
     const data = await this.main.orgs.members.isMember(username);
     console.log({ data });
   }

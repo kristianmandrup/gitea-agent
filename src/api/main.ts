@@ -1,29 +1,26 @@
+import { Api } from "gitea-js";
 import { MainActionHandler } from "./action-handler";
-import {
-  Action,
-  CompositeActionHandler,
-  IActionHandler,
-  ICompositeActionHandler,
-} from "./actions";
+import { Action, IActionHandler, ICompositeActionHandler } from "./actions";
 import { GiteaAdminController, IAdminController } from "./admin";
 import { GiteaApi, GiteaApiAccessor } from "./api";
-import { IMainNotifier, MainNotifier } from "./notifier";
+import { INotifier, MainNotifier } from "./notifier";
 import { GiteaOrgController, IOrgController } from "./orgs";
 import { GiteaRepositoryController, IRepoController } from "./repo";
 import { GiteaTeamController, ITeamController } from "./teams";
 import { GiteaUserController, IUserController } from "./users";
 
 export interface IMainController {
+  api: Api<unknown>;
   gitea: GiteaApi;
   admin: IAdminController;
   orgs: IOrgController;
   teams: ITeamController;
   users: IUserController;
   repos: IRepoController;
-  notifier: IMainNotifier;
+  notifier: INotifier;
 
   handle(action: Action): Promise<void>;
-  setNotifier(notifier: IMainNotifier): this;
+  setNotifier(notifier: INotifier): this;
   notify(label: string, data: any): void;
   notifyError(label: string, data: any): void;
 }
@@ -39,7 +36,7 @@ export class GiteaMainController
   teams: ITeamController;
   users: IUserController;
   actionHandler: ICompositeActionHandler;
-  notifier: IMainNotifier;
+  notifier: INotifier;
 
   // repos
   owners: Record<string, RepoMap> = {};
@@ -56,7 +53,19 @@ export class GiteaMainController
     this.notifier = this.createNotifier();
   }
 
-  setNotifier(notifier: IMainNotifier) {
+  get api() {
+    return this.gitea.api;
+  }
+
+  notify(label: string, data: any) {
+    this.notifier.notify(label, data);
+  }
+
+  notifyError(label: string, data: any) {
+    this.notifier.notifyError(label, data);
+  }
+
+  setNotifier(notifier: INotifier) {
     this.notifier = notifier;
     return this;
   }
@@ -68,14 +77,6 @@ export class GiteaMainController
 
   createNotifier() {
     return new MainNotifier(this);
-  }
-
-  notify(label: string, data: any) {
-    this.notifier.notify(label, data);
-  }
-
-  notifyError(label: string, data: any) {
-    this.notifier.notifyError(label, data);
   }
 
   async handle(action: Action) {

@@ -1,5 +1,8 @@
 import { HttpResponse } from "gitea-js";
-import { RepoAccessor } from "./repo-accesser";
+import { BaseController } from "../base-controller";
+import { IRepoController } from "./repository";
+import { INotifier } from "../notifier";
+import { RepoNotifier } from "./repo-notifier";
 
 export type NotifyOpts = {
   label: string;
@@ -12,79 +15,40 @@ export type NotifyErrorOpts = {
   error: any;
 };
 
-export class RepoBaseController extends RepoAccessor {
+export class RepoBaseController extends BaseController {
   shouldThrow = false;
+  notifier: INotifier;
+  controller: IRepoController;
 
-  public setShouldThrow(shouldThrow: boolean) {
-    this.shouldThrow = shouldThrow;
-    return this;
+  constructor(controller: IRepoController, opts: any = {}) {
+    super(controller.main, opts);
+    this.controller = controller;
+    this.notifier = opts.notifier || this.createNotifier();
   }
 
-  protected get coreData() {
-    return {};
+  async notify(label: string, data: any) {
+    await this.notifier.notify(label, data);
   }
 
-  protected notifyData(...rest: any[]) {
-    return {
-      ...this.coreData,
-      ...rest,
-    };
+  async notifyError(label: string, data: any) {
+    await this.notifier.notifyError(label, data);
   }
 
-  protected enrichedNotification(
-    response: HttpResponse<any, any>,
-    ...rest: any[]
-  ) {
-    const notification = this.notifyData(...rest);
-    this.enrich(notification, response);
-    return notification;
+  get owner() {
+    return this.controller.owner;
   }
 
-  protected enrichedNotificationError(error: any, ...rest: any[]) {
-    return this.notifyData(...rest, { error: error.message || error });
+  get repoName() {
+    return this.controller.name;
   }
 
-  protected async notifyEnriched(
-    label: string,
-    response: HttpResponse<any, any>,
-    ...rest: any[]
-  ) {
-    const notification = this.enrichedNotification(response, ...rest);
-    await this.notify(label, notification);
+  createNotifier() {
+    return new RepoNotifier(this.main);
   }
 
-  protected async notifyEnrichedError(
-    label: string,
-    error: any,
-    ...rest: any[]
-  ) {
-    const notification = this.enrichedNotificationError(error, ...rest);
-    await this.notify(label, notification);
-  }
+  $api = this.main.api.repos;
 
-  protected async notifyErrorAndReturn(
-    { label, error, returnVal }: NotifyErrorOpts,
-    ...rest: any[]
-  ) {
-    await this.notifyEnrichedError(label, error, ...rest);
-    if (this.shouldThrow) {
-      throw error;
-    }
-    return returnVal;
-  }
-
-  protected async notifyAndReturn<D, E extends unknown = unknown>(
-    { label, response, returnVal }: NotifyOpts,
-    ...rest: any[]
-  ) {
-    await this.notifyEnriched(label, response, ...rest);
-    return this.returnData<D, E>(response, returnVal);
-  }
-
-  protected returnData<D, E extends unknown = unknown>(
-    response: HttpResponse<D, unknown>,
-    onError?: E
-  ) {
-    return response.ok ? response.data : onError || undefined;
+  get coreData() {
+    return this.controller.repoData;
   }
 }

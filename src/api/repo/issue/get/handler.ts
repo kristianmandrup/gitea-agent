@@ -10,7 +10,7 @@ export class GetIssueActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const id = action.fnArgs.id;
+    const id = action.parameters.id;
     const data = await this.main.repos.issues.getById(id);
     console.log({ data });
   }
