@@ -2,6 +2,7 @@ import { MainActionHandler } from "./action-handler";
 import { Action, CompositeActionHandler, IActionHandler } from "./actions";
 import { GiteaAdminController, IAdminController } from "./admin";
 import { GiteaApi, GiteaApiAccessor } from "./api";
+import { IMainNotifier, MainNotifier } from "./notifier";
 import { GiteaOrgController, IOrgController } from "./orgs";
 import { GiteaRepositoryController, IRepoController } from "./repo";
 import { GiteaTeamController, ITeamController } from "./teams";
@@ -14,8 +15,11 @@ export interface IMainController {
   teams: ITeamController;
   users: IUserController;
   repos: IRepoController;
+  notifier: IMainNotifier;
 
   handle(action: Action): Promise<void>;
+  notify(label: string, data: any): void;
+  notifyError(label: string, data: any): void;
 }
 
 export type RepoMap = Record<string, IRepoController>;
@@ -26,6 +30,7 @@ export class GiteaMainController extends GiteaApiAccessor {
   teams: ITeamController;
   users: IUserController;
   actionHandler: CompositeActionHandler;
+  notifier: IMainNotifier;
 
   // repos
   owners: Record<string, RepoMap> = {};
@@ -39,6 +44,19 @@ export class GiteaMainController extends GiteaApiAccessor {
     this.teams = this.createTeamsController();
     this.users = this.createUsersController();
     this.actionHandler = this.createActionHandler();
+    this.notifier = this.createNotifier();
+  }
+
+  createNotifier() {
+    return new MainNotifier(this);
+  }
+
+  notify(label: string, data: any) {
+    this.notifier.notify(label, data);
+  }
+
+  notifyError(label: string, data: any) {
+    this.notifier.notifyError(label, data);
   }
 
   async handle(action: Action) {
