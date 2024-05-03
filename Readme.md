@@ -96,42 +96,51 @@ const created = $prc.create({
 
 This library is using [gitea-js](https://www.npmjs.com/package/gitea-js) as a wrapper to work with the Gitea REST API.
 
-The Gitea API method are wrapped in controllers such as `GiteaRepoIssueCommentController`, with methods like the following `getComments`:
+The Gitea API methods are (and should be) wrapped in controllers such as `GiteaRepoIssueCommentController`, with methods like the following `create` used to create a branch given a `branchName`.
+
+The method `coreData` should be implemented for each controller to return the core data (state) of the controller, such as `owner` and `repoName` for any controller working on a repo.
+
+The `$api` should be set for convenience and to make it clear what Gitea `api` scope the controller methods should be using.
 
 ```ts
-async getComments(index = this.index) {
-  if (!index) {
-    throw new Error("Missing issue index");
+export class GiteaBranchController
+  extends RepoBaseController
+  implements IBranchController
+{
+  $api = this.api.repos;
+
+  get coreData() {
+    return this.repoData;
   }
-  const label = "issue:comments:get";
-  try {
-    const response = await this.api.repos.issueGetComments(
-      this.owner,
-      this.repoName,
-      index
-    );
-    const comments = response.data;
-    const notification = {
-      ...this.repoData,
-      index,
-      comments,
-    };
-    await this.notify(label, notification);
-    return comments;
-  } catch (error) {
-    const notification = {
-      ...this.repoData,
-      index,
-      error,
-    };
-    await this.notifyError(label, notification);
-    return [];
+
+  async create(branchName: string) {
+    const label = "repo:branch:create";
+    try {
+      const response = await this.$api.repoCreateBranch(
+        this.owner,
+        this.repoName,
+        {
+          new_branch_name: branchName,
+        }
+      );
+      return this.notifyAndReturn<Branch>(label, response, branchName);
+    } catch (error) {
+      return await this.notifyErrorAndReturn(
+        label,
+        undefined,
+        error,
+        branchName
+      );
+    }
   }
+
+  // more methods
 }
 ```
 
-Each such wrapper method should wrap the call in a `try/catch`. On a successful API call, it should call `notify` with success details. On error, it should call `notifyError` with error details.
-Any notification should be sent to the relevant AI/user agents to act upon.
+Each such wrapper method should wrap the call in a `try/catch` to ensure both HTTP errors and any other errors are handled without throwing an error.
+
+For any controller, the `setShouldThrow(true)` method can be used to force methods to throw an error if needed.
 
 ## Actions and Action handlers
 

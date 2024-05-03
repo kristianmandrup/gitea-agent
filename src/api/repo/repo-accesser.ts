@@ -1,4 +1,5 @@
 import { IMainController } from "../main";
+import { NotificationAssist } from "../notification-assist";
 import { IRepoNotifier, RepoNotifier } from "./notifier";
 import { IRepoController } from "./repository/controller";
 
@@ -8,11 +9,12 @@ export interface IRepoAccessor {
   notifier: IRepoNotifier;
 }
 
-export class RepoAccessor implements IRepoAccessor {
+export class RepoAccessor extends NotificationAssist implements IRepoAccessor {
   repo: IRepoController;
   notifier: IRepoNotifier;
 
   constructor(repo: IRepoController, opts: any = {}) {
+    super();
     this.repo = repo;
     this.notifier = opts.notifier || this.createNotifier();
   }

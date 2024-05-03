@@ -3,47 +3,48 @@ import {
   BranchProtection,
   CreateBranchProtectionOption,
 } from "gitea-js";
-import { RepoAccessor } from "../repo-accesser";
+import { RepoBaseController } from "../repo-base-controller";
 
 export interface IBranchController {
   create(branchName: string): Promise<Branch | undefined>;
   createProtection(
     branchName: string,
     opts: CreateBranchProtectionOption
-  ): Promise<BranchProtection>;
+  ): Promise<BranchProtection | undefined>;
   delete(branchName: string): Promise<any>;
   list(): Promise<Branch[]>;
-  getByName(branchName: string): Promise<Branch>;
+  getByName(branchName: string): Promise<Branch | undefined>;
 }
 
 export class GiteaBranchController
-  extends RepoAccessor
+  extends RepoBaseController
   implements IBranchController
 {
+  $api = this.api.repos;
+
+  get coreData() {
+    return this.repoData;
+  }
+
   async create(branchName: string) {
     const label = "repo:branch:create";
     try {
-      const response = await this.api.repos.repoCreateBranch(
+      const response = await this.$api.repoCreateBranch(
         this.owner,
         this.repoName,
         {
           new_branch_name: branchName,
         }
       );
-      const notification = {
-        ...this.repoData,
-        branchName,
-      };
-      await this.notify(label, notification);
-      return response.data;
+      return this.notifyAndReturn<Branch>(
+        {
+          label,
+          response,
+        },
+        branchName
+      );
     } catch (error) {
-      const notification = {
-        ...this.repoData,
-        branchName,
-        error,
-      };
-      await this.notifyError(label, notification);
-      return;
+      return await this.notifyErrorAndReturn({ label, error }, branchName);
     }
   }
 
@@ -51,21 +52,27 @@ export class GiteaBranchController
     branchName: string,
     opts?: CreateBranchProtectionOption
   ) {
+    const label = "repo:branch:protection:create";
     const fullOpts = {
       ...(opts || {}),
       branch_name: branchName,
     };
-    const response = await this.api.repos.repoCreateBranchProtection(
-      this.owner,
-      this.repoName,
-      fullOpts
-    );
-    const notification = {
-      ...this.repoData,
-      ...fullOpts,
-    };
-    await this.notify("repo:branch:protection:create", notification);
-    return response.data;
+    try {
+      const response = await this.api.repos.repoCreateBranchProtection(
+        this.owner,
+        this.repoName,
+        fullOpts
+      );
+      return await this.notifyAndReturn<BranchProtection>(
+        { label, returnVal: [], response },
+        branchName
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn(
+        { label, returnVal: [], error },
+        branchName
+      );
+    }
   }
 
   // repoEditBranchProtection: (owner: string, repo: string, name: string, body: EditBranchProtectionOption
@@ -82,8 +89,9 @@ export class GiteaBranchController
       ...this.repoData,
       branchName,
     };
+    this.enrich(notification, response);
     await this.notify("repo:branch:delete", notification);
-    return response.data;
+    return this.returnData<any>(response);
   }
 
   async list() {
@@ -91,7 +99,12 @@ export class GiteaBranchController
       this.owner,
       this.repoName
     );
-    return response.data;
+    const notification = {
+      ...this.repoData,
+    };
+    this.enrich(notification, response);
+    await this.notify("repo:branch:list", notification);
+    return this.returnData<Branch[], any>(response, []);
   }
 
   async getByName(branchName: string) {
@@ -100,6 +113,11 @@ export class GiteaBranchController
       this.repoName,
       branchName
     );
-    return response.data;
+    const notification = {
+      ...this.repoData,
+    };
+    this.enrich(notification, response);
+    await this.notify("repo:branch:get", notification);
+    return this.returnData<Branch, unknown>(response);
   }
 }
