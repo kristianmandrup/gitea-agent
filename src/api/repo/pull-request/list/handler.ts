@@ -9,7 +9,7 @@ export class ListPullRequestsActionHandler extends CompositeActionHandler {
   name = "list_pull_requests";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const data = await this.main.repos.pullRequests.list();
     console.log({ data });
   }

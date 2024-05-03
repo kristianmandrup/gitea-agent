@@ -9,7 +9,7 @@ export class ListTeamReposActionHandler extends CompositeActionHandler {
   name = "list_team_repo";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const { id } = action.fnArgs;
     const data = await this.main.teams.repos.list(id);
     console.log({ data });

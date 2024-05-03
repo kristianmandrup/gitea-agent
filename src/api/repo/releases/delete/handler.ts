@@ -9,7 +9,7 @@ export class DeleteReleaseActionHandler extends CompositeActionHandler {
   name = "delete_release";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const id = Number(action.fnArgs.id);
     const data = await this.main.repos.releases.deleteById(id);
     console.log({ data });

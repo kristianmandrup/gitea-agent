@@ -9,7 +9,7 @@ export class ListFilesActionHandler extends CompositeActionHandler {
   name = "list_release";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const data = await this.main.repos.releases.list();
     console.log({ data });
   }

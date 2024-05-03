@@ -9,7 +9,7 @@ export class SetPullRequestIdActionHandler extends CompositeActionHandler {
   name = "set_pull_request_id";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const id = Number(action.fnArgs.id);
     const data = await this.main.repos.pullRequests.reviews.setPullRequestId(
       id

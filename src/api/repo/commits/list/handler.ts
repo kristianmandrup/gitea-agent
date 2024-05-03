@@ -9,7 +9,7 @@ export class ListCommitsActionHandler extends CompositeActionHandler {
   name = "list_commits";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const { sha, path, stat, files } = action.fnArgs;
     const data = await this.main.repos.commits.list({ sha, path, stat, files });
     console.log({ data });

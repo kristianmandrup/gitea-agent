@@ -9,7 +9,7 @@ export class ListWikiPagesActionHandler extends CompositeActionHandler {
   name = "list_wiki_pages";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const data = await this.main.repos.wikis.listPages();
     console.log({ data });
   }

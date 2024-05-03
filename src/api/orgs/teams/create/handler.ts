@@ -9,7 +9,7 @@ export class CreateOrgTeamActionHandler extends CompositeActionHandler {
   name = "create_branch";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const { name, description, permission } = action.fnArgs;
     const data = await this.main.orgs.teams.create(name, {
       name,

@@ -9,7 +9,7 @@ export class GetRepositoryActionHandler extends CompositeActionHandler {
   name = "get_repository";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const data = await this.main.repos.get();
     console.log({ data });
   }

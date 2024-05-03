@@ -9,7 +9,7 @@ export class DeleteWikiPageActionHandler extends CompositeActionHandler {
   name = "delete_wiki_page";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const { pageName } = action.fnArgs;
     const data = await this.main.repos.wikis.deletePage(pageName);
     console.log({ data });

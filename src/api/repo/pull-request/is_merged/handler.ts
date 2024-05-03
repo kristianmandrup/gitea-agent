@@ -9,7 +9,7 @@ export class IsPullRequestMergedActionHandler extends CompositeActionHandler {
   name = "is_pull_request_merged";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const id = Number(action.fnArgs.id);
     const data = await this.main.repos.pullRequests.isMerged(id);
     console.log({ data });

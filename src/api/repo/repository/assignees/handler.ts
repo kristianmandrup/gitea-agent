@@ -9,7 +9,7 @@ export class GetAssigneesActionHandler extends CompositeActionHandler {
   name = "get_assignees";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const data = await this.main.repos.listAssignees();
     console.log({ data });
   }

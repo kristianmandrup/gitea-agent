@@ -9,7 +9,7 @@ export class CreateTeamActionHandler extends CompositeActionHandler {
   name = "add_team";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const { name } = action.fnArgs;
     const data = await this.main.repos.teams.add(name);
     console.log({ data });

@@ -9,7 +9,7 @@ export class DismissPullRequestReviewActionHandler extends CompositeActionHandle
   name = "dismiss_pull_request_review";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const id = Number(action.fnArgs.id);
     const { message } = action.fnArgs;
     const data = await this.main.repos.pullRequests.reviews.dismiss(id, {

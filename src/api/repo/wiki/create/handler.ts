@@ -9,7 +9,7 @@ export class CreateWikiPageActionHandler extends CompositeActionHandler {
   name = "create_wiki_page";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const opts = action.fnArgs;
     const data = await this.main.repos.wikis.createPage(opts);
     console.log({ data });

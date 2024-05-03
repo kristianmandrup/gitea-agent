@@ -9,7 +9,7 @@ export class CreateIssueActionHandler extends CompositeActionHandler {
   name = "create_issue";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const opts = action.fnArgs;
     const { title, body } = action.fnArgs;
     const data = await this.main.repos.issues.create(title, body, opts);

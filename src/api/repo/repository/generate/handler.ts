@@ -9,7 +9,7 @@ export class GenerateRepositoryActionHandler extends CompositeActionHandler {
   name = "generate_branch";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const { templateOwner, templateName, newName } = action.fnArgs;
     const data = await this.main.repos.generateFromTemplate(
       templateOwner,

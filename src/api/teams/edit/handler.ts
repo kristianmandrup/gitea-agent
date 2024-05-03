@@ -9,7 +9,7 @@ export class EditTeamActionHandler extends CompositeActionHandler {
   name = "edit_team";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const { name } = action.fnArgs;
     const data = await this.main.teams.edit(name, action.fnArgs);
     console.log({ data });

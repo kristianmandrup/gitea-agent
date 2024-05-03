@@ -9,7 +9,7 @@ export class ListBranchesActionHandler extends CompositeActionHandler {
   name = "list_branch";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const data = await this.main.repos.branches.list();
     console.log({ data });
   }

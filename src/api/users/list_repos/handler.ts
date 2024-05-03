@@ -9,7 +9,7 @@ export class ListUserReposActionHandler extends CompositeActionHandler {
   name = "list_user_repos";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const { username } = action.fnArgs;
     const data = await this.main.users.listRepos(username);
     console.log({ data });

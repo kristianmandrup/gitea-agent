@@ -9,7 +9,7 @@ export class CreatePullRequestReviewActionHandler extends CompositeActionHandler
   name = "create_review_requests";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const { pullRequestId } = action.fnArgs;
     const data = await this.main.repos.pullRequests.reviews.getComments(
       pullRequestId

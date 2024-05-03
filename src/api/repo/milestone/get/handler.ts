@@ -9,7 +9,7 @@ export class GetMilestoneActionHandler extends CompositeActionHandler {
   name = "get_milestone";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const id = action.fnArgs.id;
     const data = await this.main.repos.milestones.getById(id);
     console.log({ data });

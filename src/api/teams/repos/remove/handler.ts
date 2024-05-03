@@ -9,7 +9,7 @@ export class RemoveTeamRepoActionHandler extends CompositeActionHandler {
   name = "remove_team_repo";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const { id, organization, repository } = action.fnArgs;
     const data = await this.main.teams.repos.remove(
       id,

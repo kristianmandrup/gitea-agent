@@ -9,7 +9,7 @@ export class GetBranchActionHandler extends CompositeActionHandler {
   name = "get_branch";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const { name } = action.fnArgs;
     const data = await this.main.repos.branches.getByName(name);
     console.log({ data });

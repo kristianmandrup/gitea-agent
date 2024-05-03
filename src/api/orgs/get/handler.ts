@@ -9,7 +9,7 @@ export class GetOrganizationActionHandler extends CompositeActionHandler {
   name = "get_organization";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const { name } = action.fnArgs;
     const data = await this.main.orgs.getByName(name);
     console.log({ data });

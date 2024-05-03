@@ -9,7 +9,7 @@ export class CreateOrganizationActionHandler extends CompositeActionHandler {
   name = "create_organization";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const { name, description, username, visibility } = action.fnArgs;
     const data = await this.main.orgs.create(name, {
       full_name: name,

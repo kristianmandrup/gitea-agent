@@ -13,7 +13,7 @@ export class ListUserKeysActionHandler extends LeafActionHandler {
   name = "list_user_keys";
 
   async handle(action: Action) {
-    if (!this.validateRequired(action)) return;
+    if (!this.validate(action)) return;
     const { username } = action.fnArgs;
     const data = await this.main.users.listKeys(username);
     console.log({ data });
