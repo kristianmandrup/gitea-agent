@@ -86,10 +86,17 @@ export class ActionValidator implements IActionValidator {
         }
       }
       if (propType === "number") {
+        if (Number.isInteger(prop.min) && actionValue < prop.min) {
+          this.addError(`${propId} must be > ${prop.min}`);
+        }
+        if (Number.isInteger(prop.max) && actionValue > prop.max) {
+          this.addError(`${propId} must be < ${prop.max}`);
+        }
         if (prop.positive && actionValue <= 0) {
           this.addError(`${propId} must be > 0`);
         }
-        if (prop.notNegative && actionValue < 0) {
+        // allowNegative disabled by default. Must be explicitly set to allow negative nums
+        if (!prop.allowNegative && actionValue < 0) {
           this.addError(`${propId} must be >= 0`);
         }
       }
