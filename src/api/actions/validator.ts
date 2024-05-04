@@ -5,12 +5,29 @@ export interface IActionValidator {
   validate(action: Action): boolean;
 }
 
+const isObject = (obj: any) => {
+  return Object.prototype.toString.call(obj) === "[object Object]";
+};
+
 export class ActionValidator implements IActionValidator {
   handler: IActionHandler;
   msgList: string[] = [];
+  prefixList: string[] = [];
 
   constructor(handler: IActionHandler) {
     this.handler = handler;
+  }
+
+  addToPrefix(propKey: string) {
+    this.prefixList.push(propKey);
+  }
+
+  get prefix() {
+    return this.prefixList.join(".");
+  }
+
+  idFor(propKey: string) {
+    return `${this.prefix}${propKey}`;
   }
 
   notifyError(label: string, data: any) {
@@ -33,20 +50,49 @@ export class ActionValidator implements IActionValidator {
 
   protected validateType(type: string, propKey: string, actionValue: any) {
     if (typeof actionValue !== type) {
-      return `${propKey} invalid. Must be a ${type} but was a ${typeof actionValue}`;
+      const propId = this.idFor(propKey);
+      return `${propId} invalid. Must be a ${type} but was a ${typeof actionValue}`;
     }
     return;
   }
 
   addError(error?: string) {
-    if (!error) return;
+    if (!error || error.length === 0) return;
     this.msgList.push(error);
   }
 
-  validateSimpleTypes(propType: string, propKey: string, actionValue: any) {
+  validateSimpleTypes(
+    prop: any,
+    propType: string,
+    propKey: string,
+    actionValue: any
+  ) {
     const simpleTypes = ["string", "boolean", "number"];
+    const propId = this.idFor(propKey);
     if (simpleTypes.includes(propType)) {
       const error = this.validateType(propType, propKey, actionValue);
+      if (propType === "string") {
+        if (
+          Number.isInteger(prop.minLength) &&
+          actionValue.length < prop.minLength
+        ) {
+          this.addError(`${propId} length must be > ${prop.minLength}`);
+        }
+        if (
+          Number.isInteger(prop.maxLength) &&
+          actionValue.length > prop.maxLength
+        ) {
+          this.addError(`${propId} length must be < ${prop.maxLength}`);
+        }
+      }
+      if (propType === "number") {
+        if (prop.positive && actionValue <= 0) {
+          this.addError(`${propId} must be > 0`);
+        }
+        if (prop.notNegative && actionValue < 0) {
+          this.addError(`${propId} must be >= 0`);
+        }
+      }
       this.addError(error);
     }
   }
@@ -59,9 +105,17 @@ export class ActionValidator implements IActionValidator {
   ) {
     if (propType !== "array") return;
     const { type } = propValue.items;
+    if (!Array.isArray(actionValue)) {
+      const propId = this.idFor(propKey);
+      this.addError(
+        `${propId} must be an array of ${type} but is a ${typeof actionValue}`
+      );
+      return;
+    }
+
     const validateSimpleTypes = this.validateSimpleTypes.bind(this);
     actionValue.forEach((val: any, index: number) => {
-      validateSimpleTypes(type, `${propKey}[${index}]`, val);
+      validateSimpleTypes({}, type, `${propKey}[${index}]`, val);
     });
   }
 
@@ -71,7 +125,14 @@ export class ActionValidator implements IActionValidator {
     actionValue: any
   ) {
     if (propType !== "object") return;
-    this.addError(`For ${propKey}:`);
+    if (!isObject(actionValue)) {
+      const propId = this.idFor(propKey);
+      this.addError(
+        `${propId} must be an object but is a ${typeof actionValue}`
+      );
+      return;
+    }
+    this.addToPrefix(propKey);
     this.validateTypes(actionValue);
   }
 
@@ -83,8 +144,17 @@ export class ActionValidator implements IActionValidator {
     for (const propKey of Object.keys(properties)) {
       const prop = properties[propKey];
       const propType = prop.type;
-      const actionValue = action.parameters[propKey];
-      this.validateSimpleTypes(propType, propKey, actionValue);
+      const propDefault = prop.default;
+      let actionValue = action.parameters[propKey];
+      // set to actionValue to default value if undefined
+      if (actionValue === undefined) {
+        actionValue = propDefault;
+      }
+      // if action value not set, ignore type validation
+      if (actionValue === undefined) {
+        return true;
+      }
+      this.validateSimpleTypes(prop, propType, propKey, actionValue);
       this.validateArrayTypes(propType, propKey, prop, actionValue);
       this.validateObjectTypes(propType, propKey, actionValue);
     }
