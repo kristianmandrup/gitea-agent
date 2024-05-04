@@ -10,7 +10,7 @@ export class CreateBranchActionHandler extends LeafActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { name } = action;
+    const { name } = action.parameters;
     const data = await this.main.repos.branches.create(name);
     console.log({ data });
   }

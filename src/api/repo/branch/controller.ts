@@ -20,8 +20,10 @@ export class GiteaBranchController
   extends RepoBaseController
   implements IBranchController
 {
+  baseLabel = "repo:branch";
+
   async create(branchName: string) {
-    const label = "repo:branch:create";
+    const label = this.labelFor("create");
     try {
       const response = await this.$api.repoCreateBranch(
         this.owner,
@@ -46,7 +48,7 @@ export class GiteaBranchController
     branchName: string,
     opts?: CreateBranchProtectionOption
   ) {
-    const label = "repo:branch:protection:create";
+    const label = this.labelFor("protection:create");
     const fullOpts = {
       ...(opts || {}),
       branch_name: branchName,
@@ -76,41 +78,73 @@ export class GiteaBranchController
 
   async delete(branchName: string) {
     const label = "repo:branch:delete";
-    const response = await this.api.repos.repoDeleteBranch(
-      this.owner,
-      this.repoName,
-      branchName
-    );
-    return await this.notifyAndReturn<any>({ label, response }, branchName);
+    try {
+      const response = await this.api.repos.repoDeleteBranch(
+        this.owner,
+        this.repoName,
+        branchName
+      );
+      return await this.notifyAndReturn<any>({ label, response }, branchName);
+    } catch (error) {
+      return await this.notifyErrorAndReturn(
+        {
+          label,
+          error,
+        },
+        branchName
+      );
+    }
   }
 
-  async list() {
+  async list(query?: any) {
     const label = "repo:branch:list";
     const returnVal: any[] = [];
-    const response = await this.api.repos.repoListBranches(
-      this.owner,
-      this.repoName
-    );
-    return await this.notifyAndReturn<Branch[], any>({
-      label,
-      returnVal,
-      response,
-    });
+    try {
+      const response = await this.api.repos.repoListBranches(
+        this.owner,
+        this.repoName,
+        query
+      );
+      return await this.notifyAndReturn<Branch[], any>({
+        label,
+        returnVal,
+        response,
+      });
+    } catch (error) {
+      return await this.notifyErrorAndReturn(
+        {
+          label,
+          returnVal,
+          error,
+        },
+        query
+      );
+    }
   }
 
   async getByName(branchName: string) {
-    const label = "repo:branch:get";
-    const response = await this.api.repos.repoGetBranch(
-      this.owner,
-      this.repoName,
-      branchName
-    );
-    return await this.notifyAndReturn<Branch, any>(
-      {
-        label,
-        response,
-      },
-      branchName
-    );
+    const label = this.labelFor("get");
+    try {
+      const response = await this.api.repos.repoGetBranch(
+        this.owner,
+        this.repoName,
+        branchName
+      );
+      return await this.notifyAndReturn<Branch, any>(
+        {
+          label,
+          response,
+        },
+        branchName
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn(
+        {
+          label,
+          error,
+        },
+        branchName
+      );
+    }
   }
 }

@@ -17,9 +17,15 @@ export class BaseController {
   shouldThrow = false;
   assist: NotificationAssist;
 
+  baseLabel = "unknown";
+
   constructor(main: IMainController, opts: any = {}) {
     this.main = main;
     this.assist = this.createNotificationAssist(opts);
+  }
+
+  protected labelFor(operation: string) {
+    return [this.baseLabel, operation].join(":");
   }
 
   get api() {

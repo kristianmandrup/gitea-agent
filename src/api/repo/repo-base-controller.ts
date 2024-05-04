@@ -20,6 +20,8 @@ export class RepoBaseController extends BaseController {
   notifier: INotifier;
   controller: IRepoController;
 
+  baseLabel = "repo";
+
   constructor(controller: IRepoController, opts: any = {}) {
     super(controller.main, opts);
     this.controller = controller;
