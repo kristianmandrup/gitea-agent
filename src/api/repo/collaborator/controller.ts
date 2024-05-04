@@ -27,6 +27,7 @@ export class GiteaCollaboratorController
       throw new Error("Missing collaborator id");
     }
     const label = this.labelFor("check");
+    const data = { id };
     try {
       const response = await this.api.repos.repoCheckCollaborator(
         this.owner,
@@ -38,7 +39,7 @@ export class GiteaCollaboratorController
           label,
           response,
         },
-        id
+        data
       );
     } catch (error) {
       return await this.notifyErrorAndReturn(
@@ -46,13 +47,14 @@ export class GiteaCollaboratorController
           label,
           error,
         },
-        id
+        data
       );
     }
   }
 
   public async list(query?: any) {
     const label = this.labelFor("list");
+    const data = { query };
     try {
       const response = await this.api.repos.repoListCollaborators(
         this.owner,
@@ -63,7 +65,7 @@ export class GiteaCollaboratorController
           label,
           response,
         },
-        query
+        data
       );
     } catch (error) {
       return await this.notifyErrorAndReturn(
@@ -71,13 +73,14 @@ export class GiteaCollaboratorController
           label,
           error,
         },
-        query
+        data
       );
     }
   }
 
   public async add(newId: string, permission = "write") {
     const label = this.labelFor("add");
+    const data = { newId, permission };
     try {
       const response = await this.api.repos.repoAddCollaborator(
         this.owner,
@@ -92,8 +95,7 @@ export class GiteaCollaboratorController
           label,
           response,
         },
-        newId,
-        permission
+        data
       );
     } catch (error) {
       return await this.notifyErrorAndReturn(
@@ -101,8 +103,7 @@ export class GiteaCollaboratorController
           label,
           error,
         },
-        newId,
-        permission
+        data
       );
     }
   }
@@ -111,6 +112,7 @@ export class GiteaCollaboratorController
     if (!id) {
       throw new Error("Missing collaborator id");
     }
+    const data = { id };
     const label = this.labelFor("delete");
     try {
       const response = await this.api.repos.repoDeleteCollaborator(
@@ -123,7 +125,7 @@ export class GiteaCollaboratorController
           label,
           response,
         },
-        id
+        data
       );
     } catch (error) {
       return await this.notifyErrorAndReturn(
@@ -131,7 +133,7 @@ export class GiteaCollaboratorController
           label,
           error,
         },
-        id
+        data
       );
     }
   }

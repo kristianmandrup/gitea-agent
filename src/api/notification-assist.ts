@@ -1,7 +1,7 @@
 import { HttpResponse } from "gitea-js";
 import { INotifier, MainNotifier } from "./notifier";
 import { IMainController } from "./main";
-import { IBaseController } from "./base-controller";
+import { IBaseController, NotifyData } from "./base-controller";
 
 export type NotifyOpts = {
   label: string;
@@ -54,10 +54,10 @@ export class NotificationAssist {
     return this.controller.coreData;
   }
 
-  protected notifyData(...rest: any[]) {
+  protected notifyData(data: NotifyData) {
     return {
       ...this.coreData,
-      ...rest,
+      ...data,
     };
   }
 
@@ -71,40 +71,40 @@ export class NotificationAssist {
 
   protected enrichedNotification(
     response: HttpResponse<any, any>,
-    ...rest: any[]
+    data: NotifyData
   ) {
-    const notification = this.notifyData(...rest);
+    const notification = this.notifyData(data);
     this.enrich(notification, response);
     return notification;
   }
 
-  protected enrichedNotificationError(error: any, ...rest: any[]) {
-    return this.notifyData(...rest, { error: error.message || error });
+  protected enrichedNotificationError(error: any, data: NotifyData) {
+    return this.notifyData({ data, error: error.message || error });
   }
 
   protected async notifyEnriched(
     label: string,
     response: HttpResponse<any, any>,
-    ...rest: any[]
+    data: NotifyData
   ) {
-    const notification = this.enrichedNotification(response, ...rest);
+    const notification = this.enrichedNotification(response, data);
     await this.notify(label, notification);
   }
 
   protected async notifyEnrichedError(
     label: string,
     error: any,
-    ...rest: any[]
+    data: NotifyData
   ) {
-    const notification = this.enrichedNotificationError(error, ...rest);
+    const notification = this.enrichedNotificationError(error, data);
     await this.notify(label, notification);
   }
 
   public async notifyErrorAndReturn(
     { label, error, returnVal }: NotifyErrorOpts,
-    ...rest: any[]
+    data: NotifyData
   ) {
-    await this.notifyEnrichedError(label, error, ...rest);
+    await this.notifyEnrichedError(label, error, data);
     if (this.shouldThrow) {
       throw error;
     }
@@ -113,9 +113,9 @@ export class NotificationAssist {
 
   public async notifyAndReturn<D, E extends unknown = unknown>(
     { label, response, returnVal }: NotifyOpts,
-    ...rest: any[]
+    data: NotifyData
   ) {
-    await this.notifyEnriched(label, response, ...rest);
+    await this.notifyEnriched(label, response, data);
     return this.returnData<D, E>(response, returnVal);
   }
 

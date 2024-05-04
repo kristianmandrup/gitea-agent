@@ -6,14 +6,14 @@ import {
 import { RepoBaseController } from "../repo-base-controller";
 
 export interface IBranchController {
-  create(branchName: string): Promise<Branch | undefined>;
+  create(branchName: string): Promise<Branch>;
   createProtection(
     branchName: string,
     opts: CreateBranchProtectionOption
-  ): Promise<BranchProtection | undefined>;
+  ): Promise<BranchProtection>;
   delete(branchName: string): Promise<any>;
   list(): Promise<Branch[]>;
-  getByName(branchName: string): Promise<Branch | undefined>;
+  getByName(branchName: string): Promise<Branch>;
 }
 
 export class GiteaBranchController
@@ -24,6 +24,7 @@ export class GiteaBranchController
 
   async create(branchName: string) {
     const label = this.labelFor("create");
+    const data = { branchName };
     try {
       const response = await this.$api.repoCreateBranch(
         this.owner,
@@ -32,15 +33,15 @@ export class GiteaBranchController
           new_branch_name: branchName,
         }
       );
-      return this.notifyAndReturn<Branch>(
+      return await this.notifyAndReturn<Branch>(
         {
           label,
           response,
         },
-        branchName
+        data
       );
     } catch (error) {
-      return await this.notifyErrorAndReturn({ label, error }, branchName);
+      return await this.notifyErrorAndReturn({ label, error }, data);
     }
   }
 
@@ -53,6 +54,7 @@ export class GiteaBranchController
       ...(opts || {}),
       branch_name: branchName,
     };
+    const data = fullOpts;
     const returnVal: any[] = [];
     try {
       const response = await this.api.repos.repoCreateBranchProtection(
@@ -62,13 +64,10 @@ export class GiteaBranchController
       );
       return await this.notifyAndReturn<BranchProtection>(
         { label, returnVal, response },
-        branchName
+        data
       );
     } catch (error) {
-      return await this.notifyErrorAndReturn(
-        { label, returnVal, error },
-        branchName
-      );
+      return await this.notifyErrorAndReturn({ label, returnVal, error }, data);
     }
   }
 
@@ -78,38 +77,43 @@ export class GiteaBranchController
 
   async delete(branchName: string) {
     const label = "repo:branch:delete";
+    const data = { branchName };
     try {
       const response = await this.api.repos.repoDeleteBranch(
         this.owner,
         this.repoName,
         branchName
       );
-      return await this.notifyAndReturn<any>({ label, response }, branchName);
+      return await this.notifyAndReturn<any>({ label, response }, data);
     } catch (error) {
       return await this.notifyErrorAndReturn(
         {
           label,
           error,
         },
-        branchName
+        data
       );
     }
   }
 
   async list(query?: any) {
-    const label = "repo:branch:list";
+    const label = this.labelFor("list");
     const returnVal: any[] = [];
+    const data = { query };
     try {
       const response = await this.api.repos.repoListBranches(
         this.owner,
         this.repoName,
         query
       );
-      return await this.notifyAndReturn<Branch[], any>({
-        label,
-        returnVal,
-        response,
-      });
+      return await this.notifyAndReturn<Branch[]>(
+        {
+          label,
+          returnVal,
+          response,
+        },
+        data
+      );
     } catch (error) {
       return await this.notifyErrorAndReturn(
         {
@@ -117,25 +121,26 @@ export class GiteaBranchController
           returnVal,
           error,
         },
-        query
+        data
       );
     }
   }
 
   async getByName(branchName: string) {
     const label = this.labelFor("get");
+    const data = { branchName };
     try {
       const response = await this.api.repos.repoGetBranch(
         this.owner,
         this.repoName,
         branchName
       );
-      return await this.notifyAndReturn<Branch, any>(
+      return await this.notifyAndReturn<Branch>(
         {
           label,
           response,
         },
-        branchName
+        data
       );
     } catch (error) {
       return await this.notifyErrorAndReturn(
@@ -143,7 +148,7 @@ export class GiteaBranchController
           label,
           error,
         },
-        branchName
+        data
       );
     }
   }

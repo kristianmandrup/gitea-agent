@@ -22,6 +22,8 @@ export class RepoBaseController extends BaseController {
 
   baseLabel = "repo";
 
+  $api = this.main.api.repos;
+
   constructor(controller: IRepoController, opts: any = {}) {
     super(controller.main, opts);
     this.controller = controller;
@@ -47,8 +49,6 @@ export class RepoBaseController extends BaseController {
   createNotifier() {
     return new RepoNotifier(this.main);
   }
-
-  $api = this.main.api.repos;
 
   get coreData() {
     return this.controller.repoData;

@@ -8,14 +8,12 @@ import {
 } from "gitea-js";
 import { RepoAccessor } from "../repo-accesser";
 import { IRepoController } from "../repository/controller";
-import {
-  GiteaRepoIssueMilestoneController,
-  IRepoIssueMilestoneController,
-} from "../milestone/controller";
+import {} from "../milestone/controller";
 import {
   GiteaRepoIssueCommentController,
   IRepoIssueCommentController,
 } from "./comments";
+import { RepoBaseController } from "../repo-base-controller";
 
 export interface IRepoIssueController {
   comments: IRepoIssueCommentController;
@@ -34,9 +32,11 @@ export interface IRepoIssueController {
   removeBlockingIssue(id: string, opts: IssueMeta): Promise<Issue>;
 }
 
-export class GiteaRepoIssueController extends RepoAccessor {
+export class GiteaRepoIssueController extends RepoBaseController {
   issue?: Issue;
   comments: IRepoIssueCommentController;
+
+  baseLabel = "repo:issue";
 
   constructor(repo: IRepoController) {
     super(repo);
@@ -44,7 +44,7 @@ export class GiteaRepoIssueController extends RepoAccessor {
   }
 
   createIssueCommentController() {
-    return new GiteaRepoIssueCommentController(this.repo);
+    return new GiteaRepoIssueCommentController(this.controller);
   }
 
   get index() {
@@ -64,83 +64,120 @@ export class GiteaRepoIssueController extends RepoAccessor {
   }
 
   async create(title: string, body: string, opts: CreateIssueOption) {
-    const response = await this.api.repos.issueCreateIssue(
-      this.owner,
-      this.repoName,
-      { ...opts, body, title }
-    );
-    const notification = {
-      ...this.repoData,
-      ...opts,
-      body,
-      title,
-    };
-    await this.notify("issue:create", notification);
-    return response.data;
+    const data = { ...opts, title, body };
+    const label = this.labelFor("create");
+    try {
+      const response = await this.api.repos.issueCreateIssue(
+        this.owner,
+        this.repoName,
+        { ...opts, body, title }
+      );
+      return await this.notifyAndReturn<Issue>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async changeState(state: string, index = this.index) {
     if (!index) {
-      throw new Error(`Issue is missing or has no index`);
+      throw new Error("Missing index");
     }
-    const response = await this.api.repos.issueEditIssue(
-      this.owner,
-      this.repoName,
-      index,
-      { state }
-    );
-    const notification = {
-      ...this.repoData,
-      state,
-    };
-    await this.notify("issue:state:change", notification);
-    return response.data;
+    const data = { state, index };
+    const label = this.labelFor("state:change");
+    try {
+      const response = await this.api.repos.issueEditIssue(
+        this.owner,
+        this.repoName,
+        index,
+        { state }
+      );
+      return await this.notifyAndReturn<Issue>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async edit(opts: EditIssueOption, index = this.index) {
     if (!index) {
-      throw new Error(`Issue is missing or has no index`);
+      throw new Error("Missing index");
     }
-    const response = await this.api.repos.issueEditIssue(
-      this.owner,
-      this.repoName,
-      index,
-      opts
-    );
-    const notification = {
-      ...this.repoData,
-      ...opts,
-    };
-    await this.notify("issue:edit", notification);
-    return response.data;
+    const data = { ...opts, index };
+    const label = this.labelFor("edit");
+    try {
+      const response = await this.api.repos.issueEditIssue(
+        this.owner,
+        this.repoName,
+        index,
+        opts
+      );
+      return await this.notifyAndReturn<Issue>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async addComment(body: string, index = this.index) {
     if (!index) {
-      throw new Error(`Issue is missing or has no index`);
+      throw new Error("Missing index");
     }
-    const response = await this.api.repos.issueCreateComment(
-      this.owner,
-      this.repoName,
-      index,
-      { body }
-    );
-    const notification = {
-      ...this.repoData,
-      index,
-      body,
-    };
-    await this.notify("issue:comment:create", notification);
-    return response.data;
+    const data = { body, index };
+    const label = this.labelFor("comment:add");
+    try {
+      const response = await this.api.repos.issueCreateComment(
+        this.owner,
+        this.repoName,
+        index,
+        { body }
+      );
+      return await this.notifyAndReturn<Issue>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async getComments(id: number) {
-    const response = await this.api.repos.issueGetComments(
-      this.owner,
-      this.repoName,
-      id
-    );
-    return response.data;
+    const label = this.labelFor("comments:get");
+    const data = { id };
+    try {
+      const response = await this.api.repos.issueGetComments(
+        this.owner,
+        this.repoName,
+        id
+      );
+      return await this.notifyAndReturn<Comment[]>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async search(query: string, opts?: any) {

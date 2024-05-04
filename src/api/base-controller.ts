@@ -6,10 +6,12 @@ import {
   NotifyOpts,
 } from "./notification-assist";
 
+export type NotifyData = Record<string, any>;
+
 export interface IBaseController {
   api: Api<unknown>;
   shouldThrow: boolean;
-  coreData: Record<string, any>;
+  coreData: NotifyData;
 }
 
 export class BaseController {
@@ -32,22 +34,22 @@ export class BaseController {
     return this.main.api;
   }
 
-  public async notifyErrorAndReturn(opts: NotifyErrorOpts, ...rest: any[]) {
-    return await this.assist.notifyErrorAndReturn(opts, ...rest);
+  public async notifyErrorAndReturn(opts: NotifyErrorOpts, data: NotifyData) {
+    return await this.assist.notifyErrorAndReturn(opts, data);
   }
 
   protected async notifyAndReturn<D, E extends unknown = unknown>(
     opts: NotifyOpts,
-    ...rest: any[]
+    data: NotifyData
   ) {
-    return await this.assist.notifyAndReturn<D, E>(opts, ...rest);
+    return await this.assist.notifyAndReturn<D, E>(opts, data);
   }
 
   protected createNotificationAssist(opts: any = {}) {
     return new NotificationAssist(this.main, this, opts);
   }
 
-  public get coreData() {
+  public get coreData(): NotifyData {
     return {};
   }
 

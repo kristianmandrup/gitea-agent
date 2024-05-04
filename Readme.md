@@ -107,14 +107,11 @@ export class GiteaBranchController
   extends RepoBaseController
   implements IBranchController
 {
-  $api = this.api.repos;
-
-  get coreData() {
-    return this.repoData;
-  }
+  baseLabel = "repo:branch";
 
   async create(branchName: string) {
-    const label = "repo:branch:create";
+    const label = this.labelFor("create");
+    const data = { branchName };
     try {
       const response = await this.$api.repoCreateBranch(
         this.owner,
@@ -123,9 +120,15 @@ export class GiteaBranchController
           new_branch_name: branchName,
         }
       );
-      return this.notifyAndReturn<Branch>({ label, response }, branchName);
+      return await this.notifyAndReturn<Branch>(
+        {
+          label,
+          response,
+        },
+        data
+      );
     } catch (error) {
-      return await this.notifyErrorAndReturn({ label, error }, branchName);
+      return await this.notifyErrorAndReturn({ label, error }, data);
     }
   }
 
@@ -133,26 +136,34 @@ export class GiteaBranchController
 }
 ```
 
-You can also include a default value to be returned in case of an error, as in the following example:
+You can also include a default value `returnVal` to be returned in case of an error. This is demonstrated in the following `createProtection` method below:
 
 ```ts
-const returnVal: any[] = [];
-try {
-  const response = await this.api.repos.repoCreateBranchProtection(
-    this.owner,
-    this.repoName,
-    fullOpts
-  );
-  return await this.notifyAndReturn<BranchProtection>(
-    { label, returnVal, response },
-    branchName
-  );
-} catch (error) {
-  return await this.notifyErrorAndReturn(
-    { label, returnVal, error },
-    branchName
-  );
-}
+  async createProtection(
+    branchName: string,
+    opts?: CreateBranchProtectionOption
+  ) {
+    const label = this.labelFor("protection:create");
+    const fullOpts = {
+      ...(opts || {}),
+      branch_name: branchName,
+    };
+    const data = fullOpts;
+    const returnVal: any[] = [];
+    try {
+      const response = await this.api.repos.repoCreateBranchProtection(
+        this.owner,
+        this.repoName,
+        fullOpts
+      );
+      return await this.notifyAndReturn<BranchProtection>(
+        { label, returnVal, response },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, returnVal, error }, data);
+    }
+  }
 ```
 
 Each such wrapper method should wrap the call in a `try/catch` to ensure both HTTP errors and any other errors are handled without throwing an error.
