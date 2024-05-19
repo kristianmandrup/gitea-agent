@@ -15,7 +15,7 @@ export type NotifyErrorOpts = {
   error: any;
 };
 
-export class RepoBaseController extends BaseController {
+export abstract class RepoBaseController extends BaseController {
   shouldThrow = false;
   notifier: INotifier;
   controller: IRepoController;

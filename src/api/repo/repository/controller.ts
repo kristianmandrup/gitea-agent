@@ -39,6 +39,7 @@ import {
   GiteaRepoWikiPageController,
   IWikiPageController,
 } from "../wiki/controller";
+import { RepoBaseController } from "../repo-base-controller";
 
 export interface IRepoController extends IMainAccessor {
   owner: string;
@@ -73,6 +74,7 @@ export interface IRepoController extends IMainAccessor {
 
 export class GiteaRepositoryController
   extends GiteaMainAccessor
+  // extends RepoBaseController
   implements IRepoController
 {
   owner: string;
@@ -163,40 +165,110 @@ export class GiteaRepositoryController
     return new GiteaCollaboratorController(this);
   }
 
+  baseLabel = "repo";
+
+  $api = this.api.repos;
+
   async get() {
-    const response = await this.api.repos.repoGet(this.owner, this.name);
-    return response.data;
+    const label = this.labelFor("get");
+    const data = {};
+    try {
+      const response = await this.$api.repoGet(this.owner, this.name);
+      return await this.notifyAndReturn<Repository>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async edit(opts: EditRepoOption) {
-    const response = await this.api.repos.repoEdit(this.owner, this.name, opts);
-    return response.data;
+    const label = this.labelFor("edit");
+    const data = { ...opts };
+    try {
+      const response = await this.$api.repoEdit(this.owner, this.name, opts);
+      return await this.notifyAndReturn<Repository>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async tree(sha: string) {
-    const response = await this.api.repos.getTree(this.owner, this.name, sha);
-    return response.data;
+    const label = this.labelFor("tree");
+    const data = {};
+    try {
+      const response = await this.$api.getTree(this.owner, this.name, sha);
+      return await this.notifyAndReturn<Repository>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async delete() {
-    const response = await this.api.repos.repoDelete(this.owner, this.name);
-    return response.data;
+    const label = this.labelFor("delete");
+    const data = {};
+    try {
+      const response = await this.$api.repoDelete(this.owner, this.name);
+      return await this.notifyAndReturn<Repository>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async listAssignees() {
-    const response = await this.api.repos.repoGetAssignees(
-      this.owner,
-      this.name
-    );
-    return response.data;
+    const label = this.labelFor("assignees:list");
+    const data = {};
+    try {
+      const response = await this.$api.repoGetAssignees(this.owner, this.name);
+      return await this.notifyAndReturn<Repository>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async listReviewers() {
-    const response = await this.api.repos.repoGetReviewers(
-      this.owner,
-      this.name
-    );
-    return response.data;
+    const label = this.labelFor("get");
+    const data = {};
+    try {
+      const response = await this.$api.repoGetReviewers(this.owner, this.name);
+      return await this.notifyAndReturn<Repository>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async generateFromTemplate(
@@ -209,11 +281,19 @@ export class GiteaRepositoryController
       ...opts,
       name: newName,
     };
-    const response = await this.api.repos.generateRepo(
-      owner,
-      repoName,
-      fullOpts
-    );
-    return response.data;
+    const label = this.labelFor("generate:from_template");
+    const data = {};
+    try {
+      const response = await this.$api.generateRepo(owner, repoName, fullOpts);
+      return await this.notifyAndReturn<Repository>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 }

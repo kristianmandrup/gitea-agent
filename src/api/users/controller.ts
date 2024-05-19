@@ -1,12 +1,5 @@
-import {
-  AccessToken,
-  CreateAccessTokenOption,
-  Organization,
-  PublicKey,
-  Repository,
-} from "gitea-js";
-import { GiteaApiAccessor } from "../api";
-import { GiteaMainController, IMainController } from "../main";
+import { Organization, PublicKey, Repository, User } from "gitea-js";
+import { IMainController } from "../main";
 import { GiteaMainAccessor } from "../main-accesser";
 import {
   GiteaUserTokenController,
@@ -19,7 +12,7 @@ export interface IUserController {
   listKeys(username: string): Promise<PublicKey[]>;
   listRepos(username: string): Promise<Repository[]>;
   listOrgs(username: string): Promise<Organization[]>;
-  getByName(username: string): Promise<any>;
+  getByName(username: string): Promise<User>;
 }
 
 export class GiteaUserController
@@ -27,6 +20,8 @@ export class GiteaUserController
   implements IUserController
 {
   tokens: IUserTokenController;
+
+  baseLabel = "users";
 
   constructor(main: IMainController) {
     super(main);
@@ -38,22 +33,70 @@ export class GiteaUserController
   }
 
   async listKeys(username: string) {
-    const response = await this.api.users.userListKeys(username);
-    return response.data;
+    const label = this.labelFor("keys:list");
+    const data = { username };
+    try {
+      const response = await this.api.users.userListKeys(username);
+      return await this.notifyAndReturn<PublicKey[]>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async listRepos(username: string) {
-    const response = await this.api.users.userListRepos(username);
-    return response.data;
+    const label = this.labelFor("repos:list");
+    const data = { username };
+    try {
+      const response = await this.api.users.userListRepos(username);
+      return await this.notifyAndReturn<Repository[]>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async listOrgs(username: string) {
-    const response = await this.api.users.orgListUserOrgs(username);
-    return response.data;
+    const label = this.labelFor("repos:list");
+    const data = { username };
+    try {
+      const response = await this.api.users.orgListUserOrgs(username);
+      return await this.notifyAndReturn<Organization[]>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async getByName(username: string) {
-    const response = await this.api.users.userGet(username);
-    return response.data;
+    const label = this.labelFor("repos:list");
+    const data = { username };
+    try {
+      const response = await this.api.users.userGet(username);
+      return await this.notifyAndReturn<User>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 }

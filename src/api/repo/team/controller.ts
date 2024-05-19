@@ -1,5 +1,5 @@
 import { Team } from "gitea-js";
-import { RepoAccessor } from "../repo-accesser";
+import { RepoBaseController } from "../repo-base-controller";
 
 export interface IRepoTeamController {
   setId(id: string): this;
@@ -9,7 +9,12 @@ export interface IRepoTeamController {
   list(): Promise<Team[]>;
 }
 
-export class GiteaRepoTeamController extends RepoAccessor {
+export class GiteaRepoTeamController
+  extends RepoBaseController
+  implements IRepoTeamController
+{
+  baseLabel = "repo:team";
+
   id?: string;
 
   setId(id: string) {
@@ -21,40 +26,85 @@ export class GiteaRepoTeamController extends RepoAccessor {
     if (!id) {
       throw new Error("Missing team id");
     }
-    const response = await this.api.repos.repoCheckTeam(
-      this.owner,
-      this.repoName,
-      id
-    );
-    return response.data;
+    const label = this.labelFor("check");
+    const data = { id };
+    try {
+      const response = await this.$api.repoCheckTeam(
+        this.owner,
+        this.repoName,
+        id
+      );
+      return await this.notifyAndReturn<Team>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
-  async add(newTeamId: string) {
-    const response = await this.api.repos.repoAddTeam(
-      this.owner,
-      this.repoName,
-      newTeamId
-    );
-    return response.data;
+  async add(id: string) {
+    const label = this.labelFor("add");
+    const data = { id };
+    try {
+      const response = await this.$api.repoAddTeam(
+        this.owner,
+        this.repoName,
+        id
+      );
+      return await this.notifyAndReturn<any>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async delete(id = this.id) {
     if (!id) {
       throw new Error("Missing team id");
     }
-    const response = await this.api.repos.repoDeleteTeam(
-      this.owner,
-      this.repoName,
-      id
-    );
-    return response.data;
+    const label = this.labelFor("delete");
+    const data = { id };
+    try {
+      const response = await this.$api.repoDeleteTeam(
+        this.owner,
+        this.repoName,
+        id
+      );
+      return await this.notifyAndReturn<any>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async list() {
-    const response = await this.api.repos.repoListTeams(
-      this.owner,
-      this.repoName
-    );
-    return response.data;
+    const label = this.labelFor("add");
+    const data = {};
+    try {
+      const response = await this.$api.repoListTeams(this.owner, this.repoName);
+      return await this.notifyAndReturn<any>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 }

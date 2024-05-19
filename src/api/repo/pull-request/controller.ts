@@ -1,10 +1,7 @@
-import axios from "axios";
-import { RepoAccessor } from "../repo-accesser";
 import {
   ChangedFile,
   Commit,
   CreatePullRequestOption,
-  MergePullRequestOption,
   PullRequest,
 } from "gitea-js";
 import { IRepoController } from "../repository/controller";
@@ -12,6 +9,7 @@ import {
   GiteaPullRequestReviewController,
   IPullRequestReviewController,
 } from "./pr-reviews/controller";
+import { RepoBaseController } from "../repo-base-controller";
 
 export type MergePullRequestOpts = {
   MergeCommitID?: string;
@@ -35,10 +33,9 @@ export interface IPullRequestController {
   reviews: IPullRequestReviewController;
   create(opts?: CreatePullRequestOption): Promise<any>;
   update(style?: MergeStyle, index?: number): Promise<PullRequest>;
-  delete(index: number): Promise<void>;
   getByIndex(index: number): Promise<PullRequest>;
   isMerged(index: number): Promise<boolean>;
-  list(): Promise<PullRequest[]>;
+  list(query?: any): Promise<PullRequest[]>;
   getFiles(index?: number): Promise<ChangedFile[]>;
   merge(
     index: number,
@@ -47,7 +44,12 @@ export interface IPullRequestController {
   ): Promise<any>;
 }
 
-export class GiteaPullRequestController extends RepoAccessor {
+export class GiteaPullRequestController
+  extends RepoBaseController
+  implements IPullRequestController
+{
+  baseLabel = "repo:pull_requests";
+
   reviews: IPullRequestReviewController;
   index?: number;
 
@@ -63,7 +65,7 @@ export class GiteaPullRequestController extends RepoAccessor {
   }
 
   createPullRequestReviewController() {
-    return new GiteaPullRequestReviewController(this.repo);
+    return new GiteaPullRequestReviewController(this.controller);
   }
 
   // CreatePullRequestOption
@@ -83,29 +85,48 @@ export class GiteaPullRequestController extends RepoAccessor {
   // title?: string;
 
   async create(opts: CreatePullRequestOption = {}) {
-    const response = await this.api.repos.repoCreatePullRequest(
-      this.owner,
-      this.repoName,
-      opts
-    );
-    const notification = {
-      ...this.repoData,
-      ...opts,
-    };
-    await this.notify("repo:pull_request", notification);
-    return response.data;
+    const label = this.labelFor("create");
+    const data = { ...opts };
+    try {
+      const response = await this.api.repos.repoCreatePullRequest(
+        this.owner,
+        this.repoName,
+        opts
+      );
+      return await this.notifyAndReturn<PullRequest>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async getByIndex(index = this.index) {
     if (!index) {
       throw new Error("Missing PR identification number");
     }
-    const response = await this.api.repos.repoGetPullRequest(
-      this.owner,
-      this.repoName,
-      index
-    );
-    return response.data;
+    const label = this.labelFor("get");
+    const data = { index };
+    try {
+      const response = await this.api.repos.repoGetPullRequest(
+        this.owner,
+        this.repoName,
+        index
+      );
+      return await this.notifyAndReturn<PullRequest>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   // Merge PR's baseBranch into headBranch
@@ -114,41 +135,71 @@ export class GiteaPullRequestController extends RepoAccessor {
     if (!index) {
       throw new Error("Missing PR identification number");
     }
-    const response = await this.api.repos.repoUpdatePullRequest(
-      this.owner,
-      this.repoName,
-      index,
-      {
-        style,
-      }
-    );
-    return response.data;
+    const label = this.labelFor("create");
+    const data = { style, index };
+    try {
+      const response = await this.api.repos.repoUpdatePullRequest(
+        this.owner,
+        this.repoName,
+        index,
+        {
+          style,
+        }
+      );
+      return await this.notifyAndReturn<PullRequest>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
-  async list() {
-    const response = await this.api.repos.repoListPullRequests(
-      this.owner,
-      this.repoName
-    );
-    return response.data;
+  async list(query?: any) {
+    const label = this.labelFor("create");
+    const data = { query };
+    try {
+      const response = await this.api.repos.repoListPullRequests(
+        this.owner,
+        this.repoName,
+        query
+      );
+      return await this.notifyAndReturn<PullRequest[]>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async isMerged(index = this.index) {
     if (!index) {
       throw new Error("Missing PR id number");
     }
+    const label = this.labelFor("create");
+    const data = { index };
     try {
       const response = await this.api.repos.repoPullRequestIsMerged(
         this.owner,
         this.repoName,
         index
       );
-      const pullRequest = response.data as any;
-      return pullRequest.merged === true;
+      return await this.notifyAndReturn<PullRequest[]>(
+        {
+          label,
+          response,
+        },
+        data
+      );
     } catch (error) {
-      // TODO: fix
-      // this.handleError("Error fetching pull request:", error);
-      return false;
+      return await this.notifyErrorAndReturn({ label, error }, data);
     }
   }
 
@@ -161,59 +212,80 @@ export class GiteaPullRequestController extends RepoAccessor {
     if (!index) {
       throw new Error("Missing PR id number");
     }
-    const fullOpts = {
-      ...(opts || {}),
-      Do: mergeType,
-    };
-    const response = await this.api.repos.repoMergePullRequest(
-      this.owner,
-      this.repoName,
-      index,
-      fullOpts
-    );
-    return response.data;
-  }
-
-  async delete(index = this.index) {
-    const baseUrl = this.api.baseUrl;
-    const { owner, repoName } = this;
-    const apiUrl = `https://${baseUrl}/api/v1/repos/${owner}/${repoName}/pulls/${index}`;
-    axios
-      .delete(apiUrl)
-      .then((response) => {
-        console.log(
-          `Pull request ${index} closed successfully.`,
-          response.data
-        );
-      })
-      .catch((error) => {
-        console.error(`Error closing pull request ${index}:`, error);
-      });
+    const label = this.labelFor("create");
+    const data = { index, mergeType, ...opts };
+    try {
+      const fullOpts = {
+        ...(opts || {}),
+        Do: mergeType,
+      };
+      const response = await this.api.repos.repoMergePullRequest(
+        this.owner,
+        this.repoName,
+        index,
+        fullOpts
+      );
+      return await this.notifyAndReturn<any>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   // Get commits for the PR
-  async getCommits(index = this.index): Promise<Commit[]> {
+  async getCommits(index = this.index) {
     if (!index) {
       throw new Error("Missing PR index");
     }
-    const response = await this.api.repos.repoGetPullRequestCommits(
-      this.owner,
-      this.repoName,
-      index
-    );
-    return response.data;
+    const label = this.labelFor("commits:list");
+    const data = { index };
+    try {
+      const response = await this.api.repos.repoGetPullRequestCommits(
+        this.owner,
+        this.repoName,
+        index
+      );
+      return await this.notifyAndReturn<Commit[]>(
+        {
+          label,
+          response,
+          returnVal: [],
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   // Get changed files for a pull request
-  async getFiles(index = this.index): Promise<ChangedFile[]> {
+  async getFiles(index = this.index) {
     if (!index) {
       throw new Error("Missing PR index");
     }
-    const response = await this.api.repos.repoGetPullRequestFiles(
-      this.owner,
-      this.repoName,
-      index
-    );
-    return response.data;
+    const label = this.labelFor("files:list");
+    const data = { index };
+    try {
+      const response = await this.api.repos.repoGetPullRequestFiles(
+        this.owner,
+        this.repoName,
+        index
+      );
+      return await this.notifyAndReturn<ChangedFile[]>(
+        {
+          label,
+          response,
+          returnVal: [],
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 }

@@ -1,6 +1,7 @@
 import { Api } from "gitea-js";
 import { GiteaApi } from "./api";
 import { IMainController } from "./main";
+import { BaseController } from "./base-controller";
 
 export interface IMainAccessor {
   main: IMainController;
@@ -8,11 +9,9 @@ export interface IMainAccessor {
   api: Api<unknown>;
 }
 
-export abstract class GiteaMainAccessor {
-  main: IMainController;
-
+export abstract class GiteaMainAccessor extends BaseController {
   constructor(main: IMainController) {
-    this.main = main;
+    super(main);
   }
 
   get gitea() {

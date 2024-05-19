@@ -101,7 +101,7 @@ export class GiteaBranchController
     const returnVal: any[] = [];
     const data = { query };
     try {
-      const response = await this.api.repos.repoListBranches(
+      const response = await this.$api.repoListBranches(
         this.owner,
         this.repoName,
         query
@@ -130,7 +130,7 @@ export class GiteaBranchController
     const label = this.labelFor("get");
     const data = { branchName };
     try {
-      const response = await this.api.repos.repoGetBranch(
+      const response = await this.$api.repoGetBranch(
         this.owner,
         this.repoName,
         branchName

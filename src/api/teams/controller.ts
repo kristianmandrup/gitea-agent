@@ -1,4 +1,4 @@
-import { EditTeamOption, Repository, Team } from "gitea-js";
+import { EditTeamOption, Repository, Team, User } from "gitea-js";
 import { GiteaMainAccessor } from "../main-accesser";
 import { IMainController } from "../main";
 import {
@@ -35,6 +35,8 @@ export class GiteaTeamController
   members: ITeamMemberController;
   repos: ITeamReposController;
 
+  baseLabel = "teams";
+
   constructor(main: IMainController, team?: Team) {
     super(main);
     this.team = team;
@@ -64,63 +66,150 @@ export class GiteaTeamController
     return this;
   }
 
-  async edit(teamName: string, opts: EditTeamOption, teamId = this.team?.id) {
-    if (!teamId) {
+  async edit(name: string, opts: EditTeamOption, id = this.team?.id) {
+    if (!id) {
       throw new Error("Missing team id");
     }
     const fullOpts = {
       ...(opts || {}),
-      name: teamName,
+      name: name,
     };
-    const response = await this.api.teams.orgEditTeam(teamId, fullOpts);
-    return response.data;
+    const label = this.labelFor("teams:edit");
+    const data = { name };
+    try {
+      const response = await this.api.teams.orgEditTeam(id, fullOpts);
+      return await this.notifyAndReturn<Team>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async delete(id = this.id) {
     if (!id) {
       throw new Error("Team is missing id");
     }
-    const response = await this.api.teams.orgDeleteTeam(id);
-    return response.data;
+    const label = this.labelFor("teams:delete");
+    const data = { id };
+    try {
+      const response = await this.api.teams.orgDeleteTeam(id);
+      return await this.notifyAndReturn<void>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async deleteMember(username: string) {
     if (!this.id) {
       throw new Error("Team is missing id");
     }
-    const response = await this.api.teams.orgRemoveTeamMember(
-      this.id,
-      username
-    );
-    return response.data;
+    const label = this.labelFor("members:delete");
+    const data = { username };
+    try {
+      const response = await this.api.teams.orgRemoveTeamMember(
+        this.id,
+        username
+      );
+      return await this.notifyAndReturn<any>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async addMember(username: string) {
     if (!this.id) {
       throw new Error("Team is missing id");
     }
-    const response = await this.api.teams.orgAddTeamMember(this.id, username);
-    return response.data;
+    const label = this.labelFor("members:add");
+    const data = { username };
+    try {
+      const response = await this.api.teams.orgAddTeamMember(this.id, username);
+      return await this.notifyAndReturn<any>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async listRepos() {
     if (!this.id) {
       throw new Error("Team is missing id");
     }
-    const response = await this.api.teams.orgListTeamRepos(this.id);
-    return response.data;
+    const label = this.labelFor("repos:list");
+    const data = {};
+    try {
+      const response = await this.api.teams.orgListTeamRepos(this.id);
+      return await this.notifyAndReturn<Repository[]>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
-  async getById(id: number) {
-    const response = await this.api.teams.orgGetTeam(id);
-    return response.data;
-  }
-
-  async listMembers() {
-    if (!this.id) {
+  async getById(id = this.id) {
+    if (!id) {
       throw new Error("Team is missing id");
     }
-    const response = await this.api.teams.orgListTeamMembers(this.id);
-    return response.data;
+    const label = this.labelFor("get");
+    const data = { id };
+    try {
+      const response = await this.api.teams.orgGetTeam(id);
+      return await this.notifyAndReturn<Team>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
+  }
+
+  async listMembers(id = this.id) {
+    if (!id) {
+      throw new Error("Team is missing id");
+    }
+    const label = this.labelFor("members:list");
+    const data = { id };
+    try {
+      const response = await this.api.teams.orgListTeamMembers(id);
+      return await this.notifyAndReturn<User[]>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 }
