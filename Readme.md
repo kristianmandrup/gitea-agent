@@ -294,14 +294,12 @@ The following is from the `MainNotifier`, accessible via the `GiteaMainControlle
 
   async notify(label: string, data: any) {
     const message = JSON.stringify(label, data);
-    const aiResponses = await this.aiAdapter.notifyAi(message);
-    for (const response of aiResponses) {
-      this.handleResponse(response);
-    }
+    const aiResponse = await this.aiAdapter.notifyAi(message);
+    this.handleResponse(aiResponse);
   }
 ```
 
-The AI adapter is notified with the message and the AI responses are iterated, and each is attempted handled as an action via `handleResponse`.
+The AI adapter is notified with the message and the AI response is attempted handled as an action via `handleResponse`.
 
 ## Handling AI responses
 
@@ -366,7 +364,7 @@ const tools = [
 ];
 ```
 
-These are then registered with the AI, such as OpenAI using the relevant adapter, such as:
+These are then registered with the AI, such as OpenAI, using the relevant adapter, such as:
 
 ```ts
 const aiAdapter = new OpenAIAdapter();
