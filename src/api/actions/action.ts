@@ -13,6 +13,6 @@ export class Action implements IAction {
   }
 
   static createFrom(actionObj: any) {
-    return new Action(actionObj.name, actionObj.parameters);
+    return new Action(actionObj.name, JSON.parse(actionObj.arguments));
   }
 }

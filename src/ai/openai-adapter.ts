@@ -1,9 +1,10 @@
 import { OpenAIClient } from "openai-fetch";
 import { ChatMessage, Role } from "openai-fetch/dist/types";
 import { ChatCompletion } from "openai-fetch/openai-types/resources";
+import { ChatCompletionMessage, CompletionChoice } from "openai/resources";
 
 export interface IAIAdapter {
-  notifyAi(message: string): Promise<string[]>;
+  notifyAi(message: string): Promise<ChatCompletion.Choice>;
 }
 
 // Generate a single chat completion
@@ -11,16 +12,23 @@ export class OpenAIAdapter implements IAIAdapter {
   // retains full chat history
   messages: ChatMessage[] = [];
   client: OpenAIClient;
+  tools: any[] = [];
 
   constructor() {
     this.client = new OpenAIClient({ apiKey: process.env.OPENAI_API_KEY });
+  }
+
+  setTools(tools: any) {
+    this.tools = tools;
+    return this;
   }
 
   addToolMessage(content: string, role: Role = "tool") {
     this.messages.push({ content, role });
   }
 
-  addSystemMessage(content: string, role: Role = "system") {
+  addSystemMessage(content: string | null, role: Role = "system") {
+    if (!content) return;
     this.messages.push({ content, role });
   }
 
@@ -33,22 +41,24 @@ export class OpenAIAdapter implements IAIAdapter {
     return await this.client.createChatCompletion({
       model: process.env.OPENAI_MODEL || "gpt-3.5-turbo",
       messages: this.messages,
+      tools: this.tools,
+      tool_choice: "auto",
     });
   }
 
-  parseResponseContent(completion: ChatCompletion): string[] {
+  parseResponseContent(completion: ChatCompletion) {
     const { choices } = completion;
-    return choices.map((c) => this.getContent(c)).filter((c) => c !== "");
+    return choices[0];
   }
 
-  getContent(choice: ChatCompletion.Choice) {
-    return choice.message.content ? choice.message.content : "";
+  getMessage(choice: ChatCompletion.Choice) {
+    return choice.message;
   }
 
-  async getChatCompletion(): Promise<string[]> {
+  async getChatCompletion() {
     const response = await this.getAIResponse();
-    const contentList = this.parseResponseContent(response);
-    contentList.forEach((content) => this.addSystemMessage(content));
-    return contentList;
+    const choice = this.parseResponseContent(response);
+    this.addSystemMessage(choice.message.content);
+    return choice;
   }
 }

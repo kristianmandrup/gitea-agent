@@ -268,14 +268,12 @@ export const createBranch = {
 
 The definitions can be used to communicate available actions to an AI agent so it knows how to execute those actions by sending a JSON response conforming to the action definition.
 
-An AI action response for the above action definition may look as follows:
+An AI action response for the above action definition may look as follows for `choices[0].message.tools_call[0]`:
 
 ```json
 {
-  "target": "gitea",
-  "type": "action",
   "name": "create_branch",
-  "parameters": {
+  "arguments": {
     "name": "my-branch"
   }
 }
@@ -314,29 +312,76 @@ The `OpenAIAdapter` includes support for HTTP Request/Response, whereas `OpenAIS
 The following is from the `MainNotifier`, accessible via the `GiteaMainController`
 
 ```ts
-  isGiteaAction(action: any) {
-    if (!this.isAction(action)) return;
-    return action.target !== "gitea";
+  getActionsFromMessage(message: ChatCompletionMessage) {
+    return message.tool_calls?.map((tc) => tc.function);
   }
 
-  isAction(obj: any) {
-    return obj.type === "action";
-  }
-
-  handleAction(actionObj: any) {
-    if (!this.isGiteaAction(actionObj)) return;
+  handleAction(actionObj: IFunctionCall) {
     const action = Action.createFrom(actionObj);
     this.main.handle(action);
   }
 
-  public handleResponse(aiResponse: string) {
+  handleMessage(actionObj: any) {
+    const actions = this.getActionsFromMessage(actionObj);
+    if (!actions) return;
+    for (const action of actions) {
+      this.handleAction(action);
+    }
+  }
+
+  public handleResponse(message: ChatCompletionMessage) {
     try {
-      const actionObj = JSON.parse(aiResponse);
-      this.handleAction(actionObj);
+      this.handleMessage(message);
     } catch (error) {
       console.log("Not a gitea action");
     }
   }
 ```
 
-The `handleResponse` method receives the AI reponse, attempts to parse it as JSON and determines if it is an action targeted at gitea. It then proceeds to handle the action, calling the main `handle` method which find the appropriate action handler to handle and execute the action.
+The `handleResponse` method receives the AI response, get any actions in the response amd proceeds to handle each action by calling the main `handle` method which find the appropriate action handler to handle and execute the action.
+
+## Registering tools
+
+Tools are registered by creating a list of `tools` from the action definitions with the following tool structure for each.
+
+```ts
+const tools = [
+  {
+    type: "function",
+    function: {
+      name: "create_branch",
+      description: "Creates a branch with a given name in a repository",
+      parameters: {
+        type: "object",
+        properties: {
+          name: {
+            type: "string",
+            description: "Name of the branch",
+          },
+        },
+      },
+      required: ["name"],
+    },
+  },
+];
+```
+
+These are then registered with the AI, such as OpenAI using the relevant adapter, such as:
+
+```ts
+const aiAdapter = new OpenAIAdapter();
+aiAdapter.setTools(tools);
+```
+
+For the sample `OpenAIAdapter` the tools are registered via the async `getAIResponse` method as follows
+
+```ts
+  async getAIResponse() {
+    return await this.client.createChatCompletion({
+      model: process.env.OPENAI_MODEL || "gpt-3.5-turbo",
+      messages: this.messages,
+      tools: this.tools,
+      tool_choice: "auto",
+    });
+  }
+```
