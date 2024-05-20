@@ -10,10 +10,10 @@ export class GetCommitActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    if (!action.parameters.sha) {
+    if (!action.arguments.sha) {
       throw new Error("Missing sha");
     }
-    const sha = action.parameters.sha;
+    const sha = action.arguments.sha;
     const data = await this.main.repos.commits.getBySha(sha);
     console.log({ data });
   }

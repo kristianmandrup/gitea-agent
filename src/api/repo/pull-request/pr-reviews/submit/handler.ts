@@ -10,8 +10,8 @@ export class SubmitPullRequestReviewActionHandler extends CompositeActionHandler
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const id = Number(action.parameters.id);
-    const { state, body } = action.parameters;
+    const id = Number(action.arguments.id);
+    const { state, body } = action.arguments;
     const data = await this.main.repos.pullRequests.reviews.submitPending(id, {
       event: state,
       body,

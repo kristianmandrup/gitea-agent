@@ -1,4 +1,4 @@
-import { CreateOrgOption, Organization } from "gitea-js";
+import { CreateOrgOption, Organization, Repository } from "gitea-js";
 import { IOrgTeamController, OrgTeamController } from "./teams/controller";
 import {
   IOrganizationMemberController,
@@ -14,8 +14,9 @@ export interface IOrgController {
   members: IOrganizationMemberController;
   setOrganization(organization: Organization): IOrgController;
   create(username: string, opts: CreateOrgOption): Promise<Organization>;
-  getByName(name: string): Promise<Organization>;
-  delete(name: string): Promise<any>;
+  getByName(name?: string): Promise<Organization>;
+  delete(name?: string): Promise<any>;
+  listRepos(query?: any, name?: string): Promise<any>;
 }
 
 export class GiteaOrgController extends OrgAccessor {
@@ -100,5 +101,27 @@ export class GiteaOrgController extends OrgAccessor {
     }
   }
 
-  // orgListRepos: (org: string, query?
+  async listRepos(query: any = {}, name = this.name) {
+    if (!name) {
+      throw new Error("Missing org name");
+    }
+    const label = this.labelFor("repos:list");
+    const data = { name };
+    try {
+      const response = await this.api.orgs.orgListRepos(name, query);
+      return await this.notifyAndReturn<Repository[]>(
+        {
+          label,
+          response,
+          returnVal: [],
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn(
+        { label, error, returnVal: [] },
+        data
+      );
+    }
+  }
 }

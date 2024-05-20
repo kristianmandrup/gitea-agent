@@ -10,7 +10,7 @@ export class CreateMilestoneActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const opts = action.parameters;
+    const opts = action.arguments;
     const data = await this.main.repos.milestones.create(opts);
     console.log({ data });
   }

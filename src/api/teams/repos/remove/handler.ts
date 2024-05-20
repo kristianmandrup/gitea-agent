@@ -10,7 +10,7 @@ export class RemoveTeamRepoActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { id, organization, repository } = action.parameters;
+    const { id, organization, repository } = action.arguments;
     const data = await this.main.teams.repos.remove(
       id,
       organization,

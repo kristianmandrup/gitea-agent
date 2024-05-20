@@ -10,7 +10,7 @@ export class ListCommitsActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { sha, path, stat, files } = action.parameters;
+    const { sha, path, stat, files } = action.arguments;
     const data = await this.main.repos.commits.list({ sha, path, stat, files });
     console.log({ data });
   }

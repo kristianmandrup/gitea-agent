@@ -10,7 +10,7 @@ export class CreateRepoActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { username, ...rest } = action.parameters;
+    const { username, ...rest } = action.arguments;
     const data = await this.main.admin.createRepo(username, rest);
     console.log({ data });
   }

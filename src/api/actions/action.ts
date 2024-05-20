@@ -1,15 +1,15 @@
 export interface IAction {
   name: string;
-  parameters: any;
+  arguments: any;
 }
 
 export class Action implements IAction {
   name: string;
-  parameters: any;
+  arguments: any;
 
   constructor(name: string, parameters: any) {
     this.name = name;
-    this.parameters = parameters;
+    this.arguments = parameters;
   }
 
   static createFrom(actionObj: any) {

@@ -6,6 +6,7 @@ import { buildGetPullRequestHandler } from "./get";
 import { buildIsPullRequestMergedHandler } from "./is_merged";
 import { buildListPullRequestsHandler } from "./list";
 import { buildMergePullRequestHandler } from "./merge";
+import { buildPullRequestReviewHandler } from "./pr-reviews";
 
 export const buildPullRequestsHandler = (main: IMainController) =>
   new RepoPullRequestsActionHandler(main);
@@ -19,6 +20,7 @@ export class RepoPullRequestsActionHandler extends CompositeActionHandler {
       buildListPullRequestsHandler,
       buildIsPullRequestMergedHandler,
       buildMergePullRequestHandler,
+      buildPullRequestReviewHandler,
     ];
   }
 }

@@ -20,7 +20,7 @@ export class GiteaBranchController
   extends RepoBaseController
   implements IBranchController
 {
-  baseLabel = "repo:branch";
+  baseLabel = "repo:branches";
 
   async create(branchName: string) {
     const label = this.labelFor("create");

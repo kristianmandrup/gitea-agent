@@ -6,7 +6,7 @@ import { buildCommitsHandler } from "./commits";
 import { buildFilesHandler } from "./files";
 import { buildIssuesHandler } from "./issue";
 import { buildMilestonesHandler } from "./milestone";
-import { buildPullRequestsHandler } from "./pull-request";
+import { buildPullRequestsHandler } from "./pull-request/pr-reviews";
 import { buildReleasesHandler } from "./releases";
 import { buildRepoTeamHandler } from "./team";
 import { buildWikiHandler } from "./wiki";

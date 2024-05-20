@@ -10,7 +10,7 @@ export class DeleteOrganizationActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { name } = action.parameters;
+    const { name } = action.arguments;
     const data = await this.main.orgs.delete(name);
     console.log({ data });
   }

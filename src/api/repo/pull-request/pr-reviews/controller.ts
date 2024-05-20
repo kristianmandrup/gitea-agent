@@ -13,8 +13,9 @@ import {
   GiteaReviewRequestController,
   IReviewRequestController,
 } from "./requests/controller";
+import { RepoBaseController } from "../../repo-base-controller";
 
-export interface IPullRequestReviewController extends IRepoAccessor {
+export interface IPullRequestReviewController {
   pr?: PullRequest;
   id?: number;
   create(opts: CreatePullReviewOptions): Promise<PullReview>;
@@ -38,9 +39,11 @@ export interface IPullRequestReviewController extends IRepoAccessor {
 }
 
 export class GiteaPullRequestReviewController
-  extends RepoAccessor
+  extends RepoBaseController
   implements IPullRequestReviewController
 {
+  baseLabel = "repo:pr:reviews";
+
   pr?: PullRequest;
   id?: number;
   requests: IReviewRequestController;
@@ -140,21 +143,26 @@ export class GiteaPullRequestReviewController
     if (!index) {
       throw new Error(`PR is missing or has no index`);
     }
-    const response = await this.api.repos.repoSubmitPullReview(
-      this.owner,
-      this.repoName,
-      index,
-      id,
-      opts
-    );
-    const notification = {
-      ...this.repoData,
-      index,
-      id,
-      opts,
-    };
-    await this.notify("repo:pull_review:submit:pending", notification);
-    return response.data;
+    const label = "submit:pending";
+    const data = { id, ...opts, index };
+    try {
+      const response = await this.api.repos.repoSubmitPullReview(
+        this.owner,
+        this.repoName,
+        index,
+        id,
+        opts
+      );
+      return await this.notifyAndReturn<PullReview>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async dismiss(
@@ -165,20 +173,25 @@ export class GiteaPullRequestReviewController
     if (!index) {
       throw new Error(`PR is missing or has no index`);
     }
-    const response = await this.api.repos.repoDismissPullReview(
-      this.owner,
-      this.repoName,
-      index,
-      id,
-      opts
-    );
-    const notification = {
-      ...this.repoData,
-      index,
-      id,
-      opts,
-    };
-    await this.notify("repo:pull_review:dismiss", notification);
-    return response.data;
+    const label = "dismiss";
+    const data = { id, ...opts, index };
+    try {
+      const response = await this.api.repos.repoDismissPullReview(
+        this.owner,
+        this.repoName,
+        index,
+        id,
+        opts
+      );
+      return await this.notifyAndReturn<PullReview>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 }

@@ -152,7 +152,7 @@ export class ActionValidator implements IActionValidator {
       const prop = properties[propKey];
       const propType = prop.type;
       const propDefault = prop.default;
-      let actionValue = action.parameters[propKey];
+      let actionValue = action.arguments[propKey];
       // set to actionValue to default value if undefined
       if (actionValue === undefined) {
         actionValue = propDefault;
@@ -181,7 +181,7 @@ export class ActionValidator implements IActionValidator {
     let isValid = true;
     const { required } = this.definition;
     for (const param of this.definition.required) {
-      if (!action.parameters[param]) {
+      if (!action.arguments[param]) {
         isValid = false;
         this.notifyError("action:parameter:required:missing", {
           action,

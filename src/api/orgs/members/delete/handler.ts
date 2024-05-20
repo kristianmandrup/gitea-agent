@@ -10,7 +10,7 @@ export class OrgDeleteMemberActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { username } = action.parameters;
+    const { username } = action.arguments;
     const data = await this.main.orgs.members.delete(username);
     console.log({ data });
   }

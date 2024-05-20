@@ -10,7 +10,7 @@ export class AddTeamActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { username } = action.parameters;
+    const { username } = action.arguments;
     const data = await this.main.teams.members.add(username);
     console.log({ data });
   }

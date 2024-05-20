@@ -11,7 +11,7 @@ export class DeleteUserAccessTokenActionHandler extends LeafActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { username, tokenName } = action.parameters;
+    const { username, tokenName } = action.arguments;
     const data = await this.main.users.tokens.delete(username, tokenName);
     console.log({ data });
   }

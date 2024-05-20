@@ -10,7 +10,7 @@ export class ListOrgTeamActionHandler extends LeafActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { id } = action.parameters;
+    const { id } = action.arguments;
     const data = await this.main.orgs.teams.repos.remove(id);
     console.log({ data });
   }

@@ -10,7 +10,7 @@ export class AddTeamRepoActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { id, organization, repository } = action.parameters;
+    const { id, organization, repository } = action.arguments;
     const data = await this.main.teams.repos.add(id, organization, repository);
     console.log({ data });
   }

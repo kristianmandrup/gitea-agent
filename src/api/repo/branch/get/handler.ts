@@ -10,7 +10,7 @@ export class GetBranchActionHandler extends LeafActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { name } = action.parameters;
+    const { name } = action.arguments;
     const data = await this.main.repos.branches.getByName(name);
     console.log({ data });
   }

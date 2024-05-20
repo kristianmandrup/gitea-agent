@@ -10,7 +10,7 @@ export class GetReleaseActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const id = Number(action.parameters.id);
+    const id = Number(action.arguments.id);
     const data = await this.main.repos.releases.getById(id);
     console.log({ data });
   }

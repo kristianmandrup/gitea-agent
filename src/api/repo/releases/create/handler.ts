@@ -10,7 +10,7 @@ export class CreateReleaseActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const opts = action.parameters;
+    const opts = action.arguments;
     const data = await this.main.repos.releases.create(opts);
     console.log({ data });
   }

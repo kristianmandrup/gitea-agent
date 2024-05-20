@@ -10,7 +10,7 @@ export class GenerateRepositoryActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { templateOwner, templateName, newName } = action.parameters;
+    const { templateOwner, templateName, newName } = action.arguments;
     const data = await this.main.repos.generateFromTemplate(
       templateOwner,
       templateName,

@@ -8,10 +8,10 @@ import { buildSetPullRequestIdHandler } from "./set_pr";
 import { buildSubmitPullRequestReviewHandler } from "./submit";
 import { buildDismissPullRequestReviewHandler } from "./dismiss";
 
-export const buildReleaseHandler = (main: IMainController) =>
-  new RepoReleaseActionHandler(main);
+export const buildPullRequestReviewHandler = (main: IMainController) =>
+  new RPullRequstReviewActionHandler(main);
 
-export class RepoReleaseActionHandler extends CompositeActionHandler {
+export class RPullRequstReviewActionHandler extends CompositeActionHandler {
   get handlers() {
     return [
       buildCreatePullRequestReviewHandler,

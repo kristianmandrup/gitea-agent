@@ -11,7 +11,7 @@ export class GiteaRepoCommitsController
   extends RepoBaseController
   implements IRepoCommitsController
 {
-  baseLabel = "repo:branch";
+  baseLabel = "repo:commits";
 
   async getBySha(sha: string) {
     const label = this.labelFor("get");

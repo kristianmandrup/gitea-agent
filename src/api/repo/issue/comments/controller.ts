@@ -1,6 +1,7 @@
 import { Comment, Issue } from "gitea-js";
 import { RepoAccessor } from "../../repo-accesser";
 import { IRepoController } from "../../repository/controller";
+import { RepoBaseController } from "../../repo-base-controller";
 
 export interface IRepoIssueCommentController {
   addComment(body: string, index?: number): Promise<Comment | undefined>;
@@ -8,9 +9,11 @@ export interface IRepoIssueCommentController {
 }
 
 export class GiteaRepoIssueCommentController
-  extends RepoAccessor
+  extends RepoBaseController
   implements IRepoIssueCommentController
 {
+  baseLabel = "repo:issue:comments";
+
   issue?: Issue;
 
   constructor(repo: IRepoController) {
@@ -30,6 +33,7 @@ export class GiteaRepoIssueCommentController
       throw new Error(`Issue is missing or has no index`);
     }
     const label = "issue:comment:add";
+    const data = { body, index };
     try {
       const response = await this.api.repos.issueCreateComment(
         this.owner,
@@ -37,22 +41,15 @@ export class GiteaRepoIssueCommentController
         index,
         { body }
       );
-      const notification = {
-        ...this.repoData,
-        index,
-        body,
-      };
-      await this.notify(label, notification);
-      return response.data;
+      return await this.notifyAndReturn<Comment>(
+        {
+          label,
+          response,
+        },
+        data
+      );
     } catch (error) {
-      const notification = {
-        ...this.repoData,
-        index,
-        body,
-        error,
-      };
-      await this.notifyError(label, notification);
-      return;
+      return await this.notifyErrorAndReturn({ label, error }, data);
     }
   }
 
@@ -61,28 +58,26 @@ export class GiteaRepoIssueCommentController
       throw new Error("Missing issue index");
     }
     const label = "issue:comments:get";
+    const data = { index };
     try {
       const response = await this.api.repos.issueGetComments(
         this.owner,
         this.repoName,
         index
       );
-      const comments = response.data;
-      const notification = {
-        ...this.repoData,
-        index,
-        comments,
-      };
-      await this.notify(label, notification);
-      return comments;
+      return await this.notifyAndReturn<Comment[]>(
+        {
+          label,
+          response,
+          returnVal: [],
+        },
+        data
+      );
     } catch (error) {
-      const notification = {
-        ...this.repoData,
-        index,
-        error,
-      };
-      await this.notifyError(label, notification);
-      return [];
+      return await this.notifyErrorAndReturn(
+        { label, error, returnVal: [] },
+        data
+      );
     }
   }
 }

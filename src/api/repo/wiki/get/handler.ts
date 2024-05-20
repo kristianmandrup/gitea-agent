@@ -10,7 +10,7 @@ export class GetWikiPagesActionHandler extends CompositeActionHandler {
 
   async handle(action: Action) {
     if (!this.validate(action)) return;
-    const { pageName } = action.parameters;
+    const { pageName } = action.arguments;
     const data = await this.main.repos.wikis.getPage(pageName);
     console.log({ data });
   }
