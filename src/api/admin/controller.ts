@@ -10,6 +10,10 @@ import {
   GiteaAdminUserController,
   IGiteaAdminUserController,
 } from "./users/controller";
+import {
+  GiteaAdminPublicKeyController,
+  IGiteaAdminPublicKeyController,
+} from "./public_key/controller";
 
 export interface IAdminController {
   createOrg(username: string, opts: CreateOrgOption): Promise<Organization>;
@@ -21,14 +25,20 @@ export class GiteaAdminController extends GiteaMainAccessor {
   baseLabel = "admin";
 
   users: IGiteaAdminUserController;
+  keys: IGiteaAdminPublicKeyController;
 
   constructor(main: IMainController) {
     super(main);
     this.users = this.createAdminUserController();
+    this.keys = this.createAdminPublicKeyController();
   }
 
   protected createAdminUserController() {
     return new GiteaAdminUserController(this.main);
+  }
+
+  protected createAdminPublicKeyController() {
+    return new GiteaAdminPublicKeyController(this.main);
   }
 
   async createOrg(username: string, opts: CreateOrgOption) {

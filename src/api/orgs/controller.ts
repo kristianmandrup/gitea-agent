@@ -1,17 +1,11 @@
-import {
-  CreateOrgOption,
-  CreateTeamOption,
-  Organization,
-  Team,
-  User,
-} from "gitea-js";
-import { GiteaMainAccessor } from "../main-accesser";
-import { IMainController } from "../main";
+import { CreateOrgOption, Organization } from "gitea-js";
 import { IOrgTeamController, OrgTeamController } from "./teams/controller";
 import {
   IOrganizationMemberController,
   OrgMemberController,
 } from "./members/controller";
+import { OrgAccessor } from "./org-accessor";
+import { IMainController } from "../main";
 
 export interface IOrgController {
   organization?: Organization;
@@ -24,77 +18,87 @@ export interface IOrgController {
   delete(name: string): Promise<any>;
 }
 
-export abstract class OrgAccessor extends GiteaMainAccessor {
-  organization?: Organization;
-  username?: string;
+export class GiteaOrgController extends OrgAccessor {
+  $api = this.api.orgs;
+  baseLabel = "orgs";
+
   teams: IOrgTeamController;
   members: IOrganizationMemberController;
 
-  constructor(main: IMainController, organization?: Organization) {
+  constructor(main: IMainController) {
     super(main);
-    this.organization = organization;
-    this.teams = this.createTeamController();
-    this.members = this.createMembersController();
+    this.teams = this.createOrgTeamController();
+    this.members = this.createOrgMemberController();
   }
 
-  protected createMembersController() {
-    return new OrgMemberController(this.main);
-  }
-
-  protected createTeamController() {
+  createOrgTeamController() {
     return new OrgTeamController(this.main);
   }
 
-  get name() {
-    return this.organization?.name;
+  createOrgMemberController() {
+    return new OrgMemberController(this.main);
   }
 
-  get id() {
-    return this.organization?.id;
-  }
-
-  setOrganization(organization: Organization) {
-    this.organization = organization;
-    return this;
-  }
-
-  setUsername(username: string) {
-    this.username = username;
-    return this;
-  }
-}
-
-export class GiteaOrgController extends OrgAccessor {
   async create(username: string, opts: CreateOrgOption) {
     const fullOpts = {
       ...opts,
       username,
     };
-    const response = await this.api.orgs.orgCreate(fullOpts);
-    return response.data;
+    const label = this.labelFor("create");
+    const data = { ...opts, username };
+    try {
+      const response = await this.$api.orgCreate(fullOpts);
+      return await this.notifyAndReturn<Organization>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async getByName(name = this.name) {
     if (!name) {
       throw new Error("Missing org name");
     }
-    const response = await this.api.orgs.orgGet(name);
-    return response.data;
+    const label = this.labelFor("delete");
+    const data = { name };
+    try {
+      const response = await this.api.orgs.orgGet(name);
+      return await this.notifyAndReturn<Organization>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async delete(name = this.name) {
     if (!name) {
       throw new Error("Missing org name");
     }
-    const response = await this.api.orgs.orgDelete(name);
-    return response.data;
+    const label = this.labelFor("delete");
+    const data = { name };
+    try {
+      const response = await this.api.orgs.orgDelete(name);
+      return await this.notifyAndReturn<any>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
-  // orgAddTeamMember: (id: number, username: string
-  // orgRemoveTeamMember: (id: number, username: string
   // orgListRepos: (org: string, query?
-  // orgListTeamRepos: (id: number
-  // orgListTeamRepo: (id: number, org: string, repo: string
-  // orgAddTeamRepository: (id: number, org: string, repo: string
-  // orgRemoveTeamRepository: (id: number, org: string, repo: string
 }

@@ -1,5 +1,5 @@
 import { User } from "gitea-js";
-import { OrgAccessor } from "../controller";
+import { OrgAccessor } from "../org-accessor";
 
 export interface IOrganizationMemberController {
   delete(username?: string): Promise<void>;

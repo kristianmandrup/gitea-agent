@@ -1,7 +1,7 @@
 import { CompositeActionHandler } from "../../actions";
 import { IMainController } from "../../main";
 import { buildCreateOrgTeamHandler } from "./create";
-import { buildGetOrgTeamHandler } from "./get";
+import { buildOrgTeamReposHandler } from "./repos";
 import { buildListOrgTeamHandler } from "./list";
 // import {} from "./repos";
 
@@ -12,7 +12,7 @@ export class RepoOrgTeamsActionHandler extends CompositeActionHandler {
   get handlers() {
     return [
       buildCreateOrgTeamHandler,
-      buildGetOrgTeamHandler,
+      buildOrgTeamReposHandler,
       buildListOrgTeamHandler,
     ];
   }

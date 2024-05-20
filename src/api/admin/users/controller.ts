@@ -1,5 +1,4 @@
 import { CreateUserOption, User } from "gitea-js";
-import { IMainController } from "../../main";
 import { GiteaMainAccessor } from "../../main-accesser";
 
 export interface IGiteaAdminUserController {
@@ -13,10 +12,6 @@ export class GiteaAdminUserController
 {
   $api = this.api.admin;
   baseLabel = "admin:users";
-
-  constructor(main: IMainController) {
-    super(main);
-  }
 
   async createUser(opts: CreateUserOption) {
     const label = this.labelFor("create");
