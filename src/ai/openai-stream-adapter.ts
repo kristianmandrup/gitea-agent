@@ -1,11 +1,11 @@
 import OpenAI from "openai";
 
-export interface IAIAdapter {
+export interface IAIStreamAdapter {
   notifyAi(message: string): Promise<void>;
 }
 
 // Generate a single chat completion
-export class OpenAIAdapter implements IAIAdapter {
+export class OpenAIStreamAdapter implements IAIStreamAdapter {
   // retains full chat history
   messages: any[] = [];
   client: OpenAI;

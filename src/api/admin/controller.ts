@@ -1,13 +1,15 @@
 import {
-  CreateKeyOption,
   CreateOrgOption,
   CreateRepoOption,
-  CreateUserOption,
   Organization,
   Repository,
 } from "gitea-js";
 import { IMainController } from "../main";
 import { GiteaMainAccessor } from "../main-accesser";
+import {
+  GiteaAdminUserController,
+  IGiteaAdminUserController,
+} from "./users/controller";
 
 export interface IAdminController {
   createOrg(username: string, opts: CreateOrgOption): Promise<Organization>;
@@ -15,17 +17,51 @@ export interface IAdminController {
 }
 
 export class GiteaAdminController extends GiteaMainAccessor {
+  $api = this.api.admin;
+  baseLabel = "admin";
+
+  users: IGiteaAdminUserController;
+
   constructor(main: IMainController) {
     super(main);
+    this.users = this.createAdminUserController();
+  }
+
+  protected createAdminUserController() {
+    return new GiteaAdminUserController(this.main);
   }
 
   async createOrg(username: string, opts: CreateOrgOption) {
-    const response = await this.api.admin.adminCreateOrg(username, opts);
-    return response.data;
+    const label = this.labelFor("organization:create");
+    const data = { username };
+    try {
+      const response = await this.$api.adminCreateOrg(username, opts);
+      return await this.notifyAndReturn<Organization>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async createRepo(username: string, opts: CreateRepoOption) {
-    const response = await this.api.admin.adminCreateRepo(username, opts);
-    return response.data;
+    const label = this.labelFor("repo:create");
+    const data = { username };
+    try {
+      const response = await this.$api.adminCreateRepo(username, opts);
+      return await this.notifyAndReturn<Repository>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 }
