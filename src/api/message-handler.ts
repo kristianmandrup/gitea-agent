@@ -13,16 +13,16 @@ export abstract class MessageHandler {
     return [];
   }
 
-  handleAction(actionObj: IFunctionCall) {
+  async handleAction(actionObj: IFunctionCall) {
     const action = Action.createFrom(actionObj);
-    this.main.handle(action);
+    await this.main.handle(action);
   }
 
-  handleMessage(message: any) {
+  async handleMessage(message: any) {
     const actions = this.getActionsFromMessage(message);
     if (!actions) return;
     for (const action of actions) {
-      this.handleAction(action);
+      await this.handleAction(action);
     }
   }
 }

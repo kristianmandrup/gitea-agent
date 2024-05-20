@@ -13,11 +13,11 @@ export class OpenAIMessageHandler extends MessageHandler {
     );
   }
 
-  handleMessage(message: any) {
+  async handleMessage(message: any) {
     const actions = this.getActionsFromMessage(message);
     if (!actions) return;
     for (const action of actions) {
-      this.handleAction(action);
+      await this.handleAction(action);
     }
   }
 }

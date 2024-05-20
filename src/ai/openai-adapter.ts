@@ -1,7 +1,6 @@
 import { OpenAIClient } from "openai-fetch";
 import { ChatMessage, Role } from "openai-fetch/dist/types";
 import { ChatCompletion } from "openai-fetch/openai-types/resources";
-import { ChatCompletionMessage, CompletionChoice } from "openai/resources";
 
 export interface IAIAdapter {
   notifyAi(message: string): Promise<ChatCompletion.Choice>;

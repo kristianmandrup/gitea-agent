@@ -36,15 +36,15 @@ export class MainNotifier implements INotifier {
     return new OpenAIAdapter();
   }
 
-  handleMessage(message: any) {
-    this.messageHandler.handleMessage(message);
+  async handleMessage(message: any) {
+    await this.messageHandler.handleMessage(message);
   }
 
   public handleResponse(message: ChatCompletionMessage) {
     try {
       this.handleMessage(message);
-    } catch (error) {
-      console.log("Not a gitea action");
+    } catch (error: any) {
+      console.log(`Error ${error.message}`);
     }
   }
 
@@ -56,7 +56,7 @@ export class MainNotifier implements INotifier {
     const message = JSON.stringify(label, data);
     const aiResponse = await this.aiAdapter.notifyAi(message);
     if (this.isToolCall(aiResponse)) {
-      this.handleResponse(aiResponse.message);
+      await this.handleResponse(aiResponse.message);
     }
   }
 
