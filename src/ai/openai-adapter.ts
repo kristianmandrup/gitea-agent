@@ -23,6 +23,24 @@ export class OpenAIAdapter implements IAIAdapter {
     return this;
   }
 
+  asTool(definition: any) {
+    return {
+      type: "function",
+      function: definition,
+    };
+  }
+
+  addTools(definitions: any[]) {
+    for (const def of definitions) {
+      this.addTool(def);
+    }
+  }
+
+  addTool(definition: any) {
+    const tool = this.asTool(definition);
+    this.tools.push(tool);
+  }
+
   addToolMessage(content: string, role: Role = "tool") {
     this.messages.push({ content, role });
   }

@@ -8,6 +8,8 @@ See [Gitea](https://github.com/go-gitea/gitea)
 - [Quick start](#quick-start)
 - [Gitea API](#gitea-api)
 - [Actions and handlers](#actions-and-action-handlers)
+- [Action definitions](#action-definitions)
+- [Registering actions as tools/functions](#registering-toolsfunctions)
 - [AI notifications](#ai-notifications)
 - [Handling AI responses](#handling-ai-responses)
 
@@ -238,6 +240,8 @@ main.removeHandlerByName('my_other_handler);
 
 When handlers are registered, the action definitions of those handlers will be available as the `definitions` property on the composite handler and on the main controller.
 
+## Action definitions
+
 Each action definition is a JSON schema that defines the name of the actions and the available and required parameters that can be used for that action.
 
 ```ts
@@ -310,23 +314,6 @@ The `OpenAIAdapter` includes support for HTTP Request/Response, whereas `OpenAIS
 The following is from the `MainNotifier`, accessible via the `GiteaMainController`
 
 ```ts
-  getActionsFromMessage(message: ChatCompletionMessage) {
-    return message.tool_calls?.map((tc) => tc.function);
-  }
-
-  handleAction(actionObj: IFunctionCall) {
-    const action = Action.createFrom(actionObj);
-    this.main.handle(action);
-  }
-
-  handleMessage(actionObj: any) {
-    const actions = this.getActionsFromMessage(actionObj);
-    if (!actions) return;
-    for (const action of actions) {
-      this.handleAction(action);
-    }
-  }
-
   public handleResponse(message: ChatCompletionMessage) {
     try {
       this.handleMessage(message);
@@ -338,7 +325,17 @@ The following is from the `MainNotifier`, accessible via the `GiteaMainControlle
 
 The `handleResponse` method receives the AI response, get any actions in the response amd proceeds to handle each action by calling the main `handle` method which find the appropriate action handler to handle and execute the action.
 
-## Registering tools
+You can setup `main` with a custom `notifier` targeting any AI model with suitable `AIAdapter` and `MessageHandler` implementations.
+
+```ts
+const aiAdapter = new MyAIAdapter();
+const messageHandler = new MyMessageHandler(main);
+main.notifier = new MainNotifier(main, { aiAdapter, messageHandler });
+```
+
+## Registering tools/functions
+
+The following describes a recipe for registering the SDK as tools for use with ChatGPT.
 
 Tools are registered by creating a list of `tools` from the action definitions with the following tool structure for each.
 
@@ -371,7 +368,13 @@ const aiAdapter = new OpenAIAdapter();
 aiAdapter.setTools(tools);
 ```
 
-For the sample `OpenAIAdapter` the tools are registered via the async `getAIResponse` method as follows
+Alternatively use `addTool(definition)` or `addTools(definitions)`
+
+```ts
+aiAdapter.addTool(definitions.createBranch);
+```
+
+For the sample `OpenAIAdapter` the tools are registered internally via the async `getAIResponse` method as follows
 
 ```ts
   async getAIResponse() {

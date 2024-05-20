@@ -3,45 +3,41 @@ import { IAIAdapter, OpenAIAdapter } from "../ai/openai-adapter";
 import { Action } from "./actions";
 import { IMainController } from "./main";
 import { ChatCompletionMessage } from "openai-fetch/openai-types/resources";
+import { MessageHandler } from "./message-handler";
+import { OpenAIMessageHandler } from "../ai/openai-message-handler";
 
 export interface INotifier {
   notify(label: string, data: any): Promise<void>;
   notifyError(label: string, data: any): Promise<void>;
 }
 
-export interface IFunctionCall {
-  name: string;
-  arguments: string;
+export interface INofifierOpts {
+  aiAdapter?: IAIAdapter;
+  messageHandler?: MessageHandler;
 }
 
 export class MainNotifier implements INotifier {
   aiAdapter: IAIAdapter;
+  messageHandler: MessageHandler;
   main: IMainController;
 
-  constructor(main: IMainController, aiAdapter?: IAIAdapter) {
+  constructor(main: IMainController, opts: INofifierOpts = {}) {
+    const { aiAdapter, messageHandler } = opts;
     this.aiAdapter = aiAdapter || this.createAiAdapter();
+    this.messageHandler = messageHandler || this.createMessageHandler();
     this.main = main;
+  }
+
+  protected createMessageHandler() {
+    return new OpenAIMessageHandler(this.main);
   }
 
   protected createAiAdapter() {
     return new OpenAIAdapter();
   }
 
-  getActionsFromMessage(message: ChatCompletionMessage) {
-    return message.tool_calls?.map((tc) => tc.function);
-  }
-
-  handleAction(actionObj: IFunctionCall) {
-    const action = Action.createFrom(actionObj);
-    this.main.handle(action);
-  }
-
-  handleMessage(actionObj: any) {
-    const actions = this.getActionsFromMessage(actionObj);
-    if (!actions) return;
-    for (const action of actions) {
-      this.handleAction(action);
-    }
+  handleMessage(message: any) {
+    this.messageHandler.handleMessage(message);
   }
 
   public handleResponse(message: ChatCompletionMessage) {
