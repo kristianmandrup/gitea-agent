@@ -5,6 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        GITEA_USER_NAME: ${GITEA_USER_NAME}
+        GITEA_USER_EMAIL: ${GITEA_USER_EMAIL}
+        GITEA_USER_PASSWORD: ${GITEA_USER_PASSWORD}
     environment:
       - USER_UID=1000
       - USER_GID=1000

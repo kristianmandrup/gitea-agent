@@ -116,7 +116,20 @@ POSTGRES_USER=your_postgres_user
 POSTGRES_PASSWORD=your_postgres_password
 # root URL for Gitea server
 ROOT_URL=https://your_root_url
+
+# Initial Gitea user
+GITEA_USER_NAME=John Doe
+GITEA_USER_EMAIL=johndoe@example.com
+GITEA_USER_PASSWORD=password123
 ```
+
+The Dockerfile will automatically create an initial Access Token, which can be referenced by any script running in the container as `GITEA_ACCESS_TOKEN` or from a Terminal using:
+
+```bash
+curl -H "Authorization: Bearer $GITEA_ACCESS_TOKEN" https://your-gitea-instance/api/v1/user/repos
+```
+
+This command will include the access token in the Authorization header of the HTTP request, allowing you to access Gitea's API authenticated as the user associated with the token.
 
 ## Gitea API
 
