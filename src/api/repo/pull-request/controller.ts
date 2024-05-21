@@ -53,8 +53,8 @@ export class GiteaPullRequestController
   reviews: IPullRequestReviewController;
   index?: number;
 
-  constructor(repo: IRepoController, index?: number) {
-    super(repo);
+  constructor(controller: IRepoController, index?: number) {
+    super(controller);
     this.reviews = this.createPullRequestReviewController();
     index && this.setIndex(index);
   }

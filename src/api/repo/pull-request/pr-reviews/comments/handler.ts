@@ -1,12 +1,13 @@
-import { Action, CompositeActionHandler } from "../../../../actions";
+import { Action, LeafActionHandler } from "../../../../actions";
 import { IMainController } from "../../../../main";
 import { getReviewComments } from "./definition";
 
-export const buildCreatePullRequestReviewHandler = (main: IMainController) =>
-  new CreatePullRequestReviewActionHandler(main);
+export const buildGetPullRequestReviewCommentsHandler = (
+  main: IMainController
+) => new GetPullRequestReviewCommentsActionHandler(main);
 
-export class CreatePullRequestReviewActionHandler extends CompositeActionHandler {
-  name = "create_review_requests";
+export class GetPullRequestReviewCommentsActionHandler extends LeafActionHandler {
+  name = "get_review_comments";
 
   async handle(action: Action) {
     if (!this.validate(action)) return;

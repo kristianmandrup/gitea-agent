@@ -18,6 +18,7 @@ import { RepoBaseController } from "../../repo-base-controller";
 export interface IPullRequestReviewController {
   pr?: PullRequest;
   id?: number;
+  controller: IRepoController;
   create(opts: CreatePullReviewOptions): Promise<PullReview>;
   delete(id: number, index?: number): Promise<any>;
   list(index?: number): Promise<PullReview[]>;
@@ -42,14 +43,14 @@ export class GiteaPullRequestReviewController
   extends RepoBaseController
   implements IPullRequestReviewController
 {
-  baseLabel = "repo:pr:reviews";
+  baseLabel = "repo:pull_requests:reviews";
 
   pr?: PullRequest;
   id?: number;
   requests: IReviewRequestController;
 
-  constructor(repo: IRepoController) {
-    super(repo);
+  constructor(controller: IRepoController) {
+    super(controller);
     this.requests = this.createReviewRequestController();
   }
 
@@ -87,51 +88,101 @@ export class GiteaPullRequestReviewController
     if (!index) {
       throw new Error(`PR is missing or has no index`);
     }
-    const response = await this.api.repos.repoListPullReviews(
-      this.owner,
-      this.repoName,
-      index
-    );
-    return response.data;
+    const label = this.labelFor("list");
+    const data = { index };
+    try {
+      const response = await this.api.repos.repoListPullReviews(
+        this.owner,
+        this.repoName,
+        index
+      );
+      return await this.notifyAndReturn<PullReview[]>(
+        {
+          label,
+          response,
+          returnVal: [],
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async getById(id: number, index = this.index) {
     if (!index) {
       throw new Error(`PR is missing or has no index`);
     }
-    const response = await this.api.repos.repoGetPullReview(
-      this.owner,
-      this.repoName,
-      index,
-      id
-    );
-    return response.data;
+    const label = this.labelFor("get:by_id");
+    const data = { id, index };
+    try {
+      const response = await this.api.repos.repoGetPullReview(
+        this.owner,
+        this.repoName,
+        index,
+        id
+      );
+      return await this.notifyAndReturn<PullReview>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async delete(reviewId: number, index = this.index) {
     if (!index) {
       throw new Error(`PR is missing or has no index`);
     }
-    const response = await this.api.repos.repoDeletePullReview(
-      this.owner,
-      this.repoName,
-      index,
-      reviewId
-    );
-    return response.data;
+    const label = this.labelFor("delete");
+    const data = { reviewId, index };
+    try {
+      const response = await this.api.repos.repoDeletePullReview(
+        this.owner,
+        this.repoName,
+        index,
+        reviewId
+      );
+      return await this.notifyAndReturn<any>(
+        {
+          label,
+          response,
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   async getComments(id: number, index = this.index) {
     if (!index) {
       throw new Error(`PR is missing or has no index`);
     }
-    const response = await this.api.repos.repoGetPullReviewComments(
-      this.owner,
-      this.repoName,
-      index,
-      id
-    );
-    return response.data;
+    const label = this.labelFor("delete");
+    const data = { id, index };
+    try {
+      const response = await this.api.repos.repoGetPullReviewComments(
+        this.owner,
+        this.repoName,
+        index,
+        id
+      );
+      return await this.notifyAndReturn<PullReviewComment[]>(
+        {
+          label,
+          response,
+          returnVal: [],
+        },
+        data
+      );
+    } catch (error) {
+      return await this.notifyErrorAndReturn({ label, error }, data);
+    }
   }
 
   // Submit a pending review to an pull request

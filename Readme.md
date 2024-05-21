@@ -22,7 +22,7 @@ The `GiteaMainController` is the `main` controller that acts as a hub (and root)
 ```yaml
 - admin:
     - users
-    - public_keys
+    - keys
 - orgs:
     - members
     teams:
@@ -92,6 +92,30 @@ const created = $prc.create({
   head: headSha,
 });
 // ... more
+```
+
+## Docker setup
+
+The library includes setup files to run Gitea via Docker. The `setup` folder includes:
+
+- `Dockerfile` which installs, configures and runs Gitea in a Docker container
+- `docker-compose.yml` references the Dockerfile for Gitea and also composes a PostGres DB, an Nginx reverse proxy, a backup image for running backups and more...
+- `nginx.conf` with the configuration for the Nginx reverse proxy
+- `backup.sh` a backup script which sets up a cron job to run scheduled backups of Gitea
+- `.env` with environment variables to use for the docker compose
+
+The `.env` file can be customized to suit your preferences for running the Gitea server
+
+```bash
+# Server name to use for Nginx proxy server
+SERVER_NAME=example.com
+# Gitea backup schedule
+BACKUP_CRON_SCHEDULE=0 0 * * *
+# Gitea Postgres default user
+POSTGRES_USER=your_postgres_user
+POSTGRES_PASSWORD=your_postgres_password
+# root URL for Gitea server
+ROOT_URL=https://your_root_url
 ```
 
 ## Gitea API
