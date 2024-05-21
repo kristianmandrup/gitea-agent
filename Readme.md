@@ -131,6 +131,12 @@ curl -H "Authorization: Bearer $GITEA_ACCESS_TOKEN" https://your-gitea-instance/
 
 This command will include the access token in the Authorization header of the HTTP request, allowing you to access Gitea's API authenticated as the user associated with the token.
 
+The Docker file can be started via the `start` command as follows, supplying any of the parameters to override the defaults in the `.env` file
+
+```bash
+npm run start -- --user "John Doe" --email "john@example.com" --password "password123" --token "mytoken" --server "example.com" --backup-schedule "0 0 * * *" --postgres-user "your_postgres_user" --postgres-password "your_postgres_password" --root-url "https://your_root_url"
+```
+
 ## Gitea API
 
 This library is using [gitea-js](https://www.npmjs.com/package/gitea-js) as a wrapper to work with the Gitea REST API.

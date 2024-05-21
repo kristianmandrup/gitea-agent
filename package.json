@@ -4,8 +4,9 @@
   "description": "An automated pull-request agent for Gitea, an Open Source self-hosted DevOps Git platform",
   "main": "build/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node setup/cli.js"
   },
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
